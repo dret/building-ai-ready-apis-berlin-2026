@@ -1,8 +1,8 @@
-# Designing AI-ready APIs
+# Building Agent-Ready APIs in Production
 
 ## Packt Masterclass, May 3, 2026
 
-Materials for the "Designing AI-ready APIs" Masterclass
+Materials for the "Building Agent-Ready APIs in Production" Masterclass
 
 ## Authors / Trainers
 
