@@ -1,8 +1,8 @@
-# Building Agent-Ready APIs in Production
+# Architecting Production-Ready APIs for Agents
 
 ## Packt Masterclass, May 23, 2026
 
-Materials for the "Building Agent-Ready APIs in Production" Masterclass
+Materials for the "Architecting Production-Ready APIs for Agents" Masterclass
 
 ## Authors / Trainers
 
