@@ -1,0 +1,21 @@
+overlay: 1.0.0
+info:
+  title: Security Enforcement — Reading List Write Operations
+  version: 1.0.0
+  description: >-
+    Enforces explicit security requirements on all write operations in the reading list
+    resource. Platform policy requires that every POST, PUT, and DELETE operation carry
+    an explicit security declaration — not just rely on the global security fallback.
+actions:
+  - target: "$.paths['/reading-lists/me/entries']['post']"
+    update:
+      security:
+        - bearerAuth: []
+  - target: "$.paths['/reading-lists/me/entries/{bookId}']['put']"
+    update:
+      security:
+        - bearerAuth: []
+  - target: "$.paths['/reading-lists/me/entries/{bookId}']['delete']"
+    update:
+      security:
+        - bearerAuth: []

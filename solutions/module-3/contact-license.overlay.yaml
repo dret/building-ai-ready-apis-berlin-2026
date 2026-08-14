@@ -1,0 +1,17 @@
+overlay: 1.0.0
+info:
+  title: Contact and License Standardisation
+  version: 1.0.0
+  description: >-
+    Replaces team-specific contact and license information with platform-standard
+    values. Applied to all APIs before publication to the developer portal.
+actions:
+  - target: "$.info.contact"
+    update:
+      name: API Platform Team
+      url: https://developer.example.com/support
+      email: api-support@example.com
+  - target: "$.info.license"
+    update:
+      name: Apache 2.0
+      url: https://www.apache.org/licenses/LICENSE-2.0

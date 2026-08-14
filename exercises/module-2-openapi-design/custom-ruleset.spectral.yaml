@@ -1,0 +1,90 @@
+extends:
+  - .spectral.yaml
+
+rules:
+  # Every operation must have a non-empty description (agent-readiness)
+  operation-description-required:
+    description: >
+      Every operation must have a non-empty description. Descriptions are the primary
+      signal for AI agents deciding whether to call an operation and what to expect.
+      A missing or one-line description is a governance violation.
+    message: "Operation '{{property}}' is missing a description. Add an agent-ready description that explains what the operation does, what inputs are relevant, and what it returns."
+    given: "$.paths[*][get,post,put,patch,delete,options,head]"
+    severity: error
+    then:
+      field: description
+      function: truthy
+
+  # Every operation must have a summary
+  operation-summary-required:
+    description: Operations must have a summary.
+    message: "Operation '{{property}}' is missing a summary."
+    given: "$.paths[*][get,post,put,patch,delete,options,head]"
+    severity: error
+    then:
+      field: summary
+      function: truthy
+
+  # Every operation must have an operationId
+  operation-operationId-required:
+    description: >
+      Operations must have a unique operationId. This is used by SDKs, agent tools,
+      and workflow specs (Arazzo) to reference operations reliably.
+    message: "Operation at '{{path}}' is missing an operationId."
+    given: "$.paths[*][get,post,put,patch,delete,options,head]"
+    severity: error
+    then:
+      field: operationId
+      function: truthy
+
+  # Schema properties must have descriptions
+  schema-property-description:
+    description: >
+      Schema properties should have descriptions. Agents use property descriptions
+      to understand data semantics — this is especially important for enum fields,
+      IDs, and fields with non-obvious meaning.
+    message: "Schema property '{{property}}' is missing a description."
+    given: "$.components.schemas[*].properties[*]"
+    severity: warn
+    then:
+      field: description
+      function: truthy
+
+  # Top-level schemas must have descriptions
+  schema-description:
+    description: All schemas in components must have descriptions.
+    message: "Schema '{{property}}' in components.schemas is missing a description."
+    given: "$.components.schemas[*]"
+    severity: warn
+    then:
+      field: description
+      function: truthy
+
+  # Info must have contact
+  info-contact:
+    description: API info must include contact details.
+    message: "API info is missing a contact object."
+    given: "$.info"
+    severity: warn
+    then:
+      field: contact
+      function: truthy
+
+  # Responses should include error codes
+  operation-4xx-response:
+    description: >
+      Operations should document at least one 4xx error response.
+      AI agents rely on error responses to understand failure modes and recover.
+    message: "Operation '{{property}}' does not define any 4xx error response."
+    given: "$.paths[*][get,post,put,patch,delete]"
+    severity: warn
+    then:
+      field: responses
+      function: schema
+      functionOptions:
+        schema:
+          type: object
+          patternProperties:
+            "^4[0-9]{2}$":
+              type: object
+          minProperties: 1

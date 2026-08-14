@@ -1,0 +1,8 @@
+extends:
+  - spectral:oas
+  - spectral:arazzo
+  - spectral:asyncapi
+
+rules:
+  # Override oas3-schema to error severity (default is warn in some versions)
+  oas3-schema: error

@@ -1,0 +1,946 @@
+openapi: 3.1.2
+info:
+  title: Book Catalog API
+  version: 1.0.0
+  description: >-
+    TODO: Add a description that explains what this API does, who it is for,
+    and what makes it safe for both human and AI agent consumers.
+  contact:
+    name: "TODO: Your team name"
+    url: https://api.example.com
+    email: api@example.com
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+
+servers:
+  - url: https://api.example.com
+    description: Production
+
+tags:
+  - name: books
+    description: "TODO: Describe the books resource and what operations it contains"
+  - name: authors
+    description: "TODO: Describe the authors resource and what operations it contains"
+  - name: reading-lists
+    description: "TODO: Describe the reading list resource — mention it requires authentication"
+
+# Security scheme for authenticated endpoints
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: "TODO: Describe when and how this is used, and how to obtain a token"
+
+paths:
+
+  # -----------------------------------------------------------------------
+  # Books
+  # -----------------------------------------------------------------------
+
+  /books:
+    get:
+      operationId: listBooks
+      summary: Search and browse books
+      description: >-
+        TODO: Write an agent-ready description. Answer:
+        1. What does this operation do?
+        2. What filters are available and what do they do?
+        3. What does it return (name the response shape)?
+        4. What definitive language should you use for required vs optional filters?
+      tags:
+        - books
+      parameters:
+        - $ref: '#/components/parameters/offsetParam'
+        - $ref: '#/components/parameters/limitParam'
+        - name: genre
+          in: query
+          description: "TODO: Add description. What values are accepted? What happens if an unrecognised value is passed?"
+          required: false
+          schema:
+            $ref: '#/components/schemas/Genre'
+        - name: authorId
+          in: query
+          description: "TODO: Describe this filter — what type, what format, what does it do?"
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: minRating
+          in: query
+          description: "TODO: Describe the range and what this filter does"
+          required: false
+          schema:
+            type: number
+            minimum: 1
+            maximum: 5
+        - name: maxPrice
+          in: query
+          description: "TODO: Describe what currency this uses and what happens at the boundary"
+          required: false
+          schema:
+            type: number
+            minimum: 0
+        - name: q
+          in: query
+          description: "TODO: Describe the text search behaviour — what fields are searched, is it case-sensitive, partial matching?"
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: "TODO: Describe the success response — what does it contain?"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookCollection'
+              examples:
+                default:
+                  summary: "TODO: Replace with a realistic example showing 2-3 books"
+                  value: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /books/{bookId}:
+    get:
+      operationId: getBook
+      summary: Get full book details
+      description: >-
+        TODO: Write an agent-ready description. When should an agent call this vs listBooks?
+        What does it return? What happens if the book does not exist?
+      tags:
+        - books
+      parameters:
+        - $ref: '#/components/parameters/bookIdParam'
+      responses:
+        '200':
+          description: "TODO: Describe the success response"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+              examples:
+                default:
+                  summary: "TODO: Replace with a realistic book example"
+                  value: {}
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /books/{bookId}/retailers:
+    get:
+      operationId: listBookRetailers
+      summary: List retailers for a book
+      description: >-
+        TODO: Write an agent-ready description. Mention what "availability" means and
+        what a consumer should do with out-of-stock vs in-stock results.
+        What does an empty list mean? Is it a 404 or a 200?
+      tags:
+        - books
+      parameters:
+        - $ref: '#/components/parameters/bookIdParam'
+        - $ref: '#/components/parameters/offsetParam'
+        - $ref: '#/components/parameters/limitParam'
+      responses:
+        '200':
+          description: "TODO: Describe the success response"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RetailerCollection'
+              examples:
+                default:
+                  summary: "TODO: Replace with a realistic retailers example"
+                  value: {}
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # -----------------------------------------------------------------------
+  # Authors
+  # -----------------------------------------------------------------------
+
+  /authors:
+    get:
+      operationId: listAuthors
+      summary: List and search authors
+      description: >-
+        TODO: Write an agent-ready description. Describe the name filter behaviour
+        (case-insensitivity, partial matching). What does an empty result mean?
+      tags:
+        - authors
+      parameters:
+        - $ref: '#/components/parameters/offsetParam'
+        - $ref: '#/components/parameters/limitParam'
+        - name: name
+          in: query
+          description: "TODO: Describe case-insensitivity and partial matching behaviour"
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: "TODO: Describe the success response"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorCollection'
+              examples:
+                default:
+                  summary: "TODO: Replace with a realistic authors example"
+                  value: {}
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /authors/{authorId}:
+    get:
+      operationId: getAuthor
+      summary: Get author profile
+      description: >-
+        TODO: Write an agent-ready description. When is this called vs listAuthors?
+        Which fields may be null and what should a consumer do in that case?
+      tags:
+        - authors
+      parameters:
+        - $ref: '#/components/parameters/authorIdParam'
+      responses:
+        '200':
+          description: "TODO: Describe the success response"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Author'
+              examples:
+                default:
+                  summary: "TODO: Replace with a realistic author example"
+                  value: {}
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /authors/{authorId}/books:
+    get:
+      operationId: listBooksByAuthor
+      summary: List books by an author
+      description: >-
+        TODO: Write an agent-ready description. How does this differ from
+        GET /books?authorId={authorId}? What sort order is used?
+      tags:
+        - authors
+      parameters:
+        - $ref: '#/components/parameters/authorIdParam'
+        - $ref: '#/components/parameters/offsetParam'
+        - $ref: '#/components/parameters/limitParam'
+      responses:
+        '200':
+          description: "TODO: Describe the success response"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookCollection'
+              examples:
+                default:
+                  summary: "TODO: Replace with a realistic example"
+                  value: {}
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # -----------------------------------------------------------------------
+  # Reading Lists (authenticated)
+  # -----------------------------------------------------------------------
+
+  /reading-lists/me:
+    get:
+      operationId: getMyReadingList
+      summary: Get my reading list
+      description: >-
+        TODO: Mention that this is authenticated, what it returns, and how
+        the status filter controls which entries are shown. What does
+        an empty list mean?
+      tags:
+        - reading-lists
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/offsetParam'
+        - $ref: '#/components/parameters/limitParam'
+        - name: status
+          in: query
+          description: "TODO: Describe the filter — what values are accepted and what does each mean?"
+          required: false
+          schema:
+            $ref: '#/components/schemas/ReadingStatus'
+      responses:
+        '200':
+          description: "TODO: Describe the success response"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadingListCollection'
+              examples:
+                default:
+                  summary: "TODO: Replace with a realistic reading list example"
+                  value: {}
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /reading-lists/me/entries:
+    post:
+      operationId: addToReadingList
+      summary: Add a book to my reading list
+      description: >-
+        TODO: What happens if the book is already on the list? What status code is returned?
+        What does a successful response look like? Is this operation safe to retry?
+      tags:
+        - reading-lists
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReadingListEntryRequest'
+            examples:
+              default:
+                summary: "TODO: Replace with a realistic request body example"
+                value: {}
+      responses:
+        '201':
+          description: "TODO: Describe the success response — what is returned and what is in the Location header?"
+          headers:
+            Location:
+              description: URL of the newly created reading list entry
+              schema:
+                type: string
+                format: uri
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadingListEntry'
+              examples:
+                default:
+                  summary: "TODO: Replace with a realistic response example"
+                  value: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /reading-lists/me/entries/{bookId}:
+    put:
+      operationId: updateReadingListEntry
+      summary: Update reading list entry status
+      description: >-
+        TODO: What can be updated? What does the book need to be on the list already?
+        Is this operation idempotent? What happens with the same status twice?
+      tags:
+        - reading-lists
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/bookIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReadingListEntryRequest'
+            examples:
+              default:
+                summary: "TODO: Replace with a realistic request body example"
+                value: {}
+      responses:
+        '200':
+          description: "TODO: Describe the success response — what is returned?"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadingListEntry'
+              examples:
+                default:
+                  summary: "TODO: Replace with a realistic response example"
+                  value: {}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    delete:
+      operationId: removeFromReadingList
+      summary: Remove a book from my reading list
+      description: >-
+        TODO: Clarify that this only removes the reading list entry, not the
+        book itself. What happens if the book is not on the list? Is a 404 or 204 returned?
+      tags:
+        - reading-lists
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/bookIdParam'
+      responses:
+        '204':
+          description: "TODO: Describe the empty success response"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+# -----------------------------------------------------------------------
+# Components
+# -----------------------------------------------------------------------
+components:
+
+  parameters:
+    bookIdParam:
+      name: bookId
+      in: path
+      required: true
+      description: "TODO: Unique identifier of the book — UUID format"
+      schema:
+        type: string
+        format: uuid
+        example: 01938a7c-1234-7abc-8def-0123456789ab
+
+    authorIdParam:
+      name: authorId
+      in: path
+      required: true
+      description: "TODO: Unique identifier of the author — UUID format"
+      schema:
+        type: string
+        format: uuid
+        example: 01938a7c-5678-7abc-8def-0123456789cd
+
+    offsetParam:
+      name: offset
+      in: query
+      required: false
+      description: "TODO: Explain offset pagination — what does offset 0 mean, what does offset 50 return if limit is 50?"
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+        example: 0
+
+    limitParam:
+      name: limit
+      in: query
+      required: false
+      description: "TODO: Explain what limit does, what the default is, and what the maximum is"
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 1000
+        default: 50
+        example: 50
+
+  schemas:
+
+    # ---- Enums ----
+
+    Genre:
+      type: string
+      description: "TODO: Describe what genres are available and that unknown values must be tolerated by clients"
+      enum:
+        - fiction
+        - non-fiction
+        - science
+        - history
+        - biography
+        - technology
+        - children
+      example: fiction
+
+    RetailerType:
+      type: string
+      description: "TODO: Describe what each retailer type means for a consumer"
+      enum:
+        - online
+        - physical
+      example: online
+
+    Availability:
+      type: string
+      description: "TODO: Explain what each status means for purchasing decisions — when is pre-order different from out-of-stock?"
+      enum:
+        - in-stock
+        - out-of-stock
+        - pre-order
+      example: in-stock
+
+    ReadingStatus:
+      type: string
+      description: "TODO: Describe the lifecycle — can a book move from finished back to reading?"
+      enum:
+        - want-to-read
+        - reading
+        - finished
+      example: want-to-read
+
+    # ---- Value objects ----
+
+    Money:
+      type: object
+      description: "TODO: Explain why decimal string is used instead of number — hint: floating point precision"
+      required:
+        - amount
+        - currency
+      properties:
+        amount:
+          type: string
+          description: "TODO: Describe the format — how many decimal places? Is it always positive?"
+          example: "19.99"
+        currency:
+          type: string
+          description: ISO 4217 currency code
+          minLength: 3
+          maxLength: 3
+          example: USD
+
+    # ---- Core resources ----
+
+    Book:
+      type: object
+      description: "TODO: Describe the Book resource — what it represents and its key relationships"
+      required:
+        - id
+        - title
+        - description
+        - genre
+        - publishedAt
+        - pageCount
+        - price
+        - authorId
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the book.
+          readOnly: true
+          example: 01938a7c-1234-7abc-8def-0123456789ab
+        title:
+          type: string
+          description: "TODO: Describe the title field — any length constraints?"
+          example: "Dune"
+        description:
+          type: string
+          description: "TODO: Describe what this contains — plot summary, back cover copy, etc."
+          example: "A science fiction novel set in the distant future amidst a feudal interstellar society."
+        genre:
+          $ref: '#/components/schemas/Genre'
+        publishedAt:
+          type: string
+          format: date
+          description: "TODO: Describe the publication date — is this the original publication or the edition date?"
+          readOnly: true
+          example: "1965-08-01"
+        pageCount:
+          type: integer
+          description: "TODO: Describe the pageCount — what edition does this refer to?"
+          minimum: 1
+          example: 412
+        averageRating:
+          type: number
+          description: "TODO: Who calculates this? Can it be null? What scale is it on?"
+          minimum: 1
+          maximum: 5
+          readOnly: true
+          example: 4.7
+        price:
+          $ref: '#/components/schemas/Money'
+        coverImageUrl:
+          type: ["string", "null"]
+          format: uri
+          description: "TODO: When is this null? What image dimensions/formats are served?"
+          example: "https://images.example.com/books/01938a7c-1234.jpg"
+        authorId:
+          type: string
+          format: uuid
+          description: "TODO: Describe this reference — how does a consumer resolve it to an Author?"
+          example: 01938a7c-5678-7abc-8def-0123456789cd
+        createdAt:
+          type: string
+          format: date-time
+          description: "TODO: When the book record was created in the catalog — not the publication date"
+          readOnly: true
+          example: "2024-01-15T09:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: "TODO: When the book record was last modified"
+          readOnly: true
+          example: "2024-06-20T14:30:00Z"
+
+    Author:
+      type: object
+      description: "TODO: Describe the Author resource and its relationship to Books"
+      required:
+        - id
+        - name
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the author.
+          readOnly: true
+          example: 01938a7c-5678-7abc-8def-0123456789cd
+        name:
+          type: string
+          description: "TODO: Full name? Pen name? Any formatting rules?"
+          example: "Frank Herbert"
+        biography:
+          type: ["string", "null"]
+          description: "TODO: When is this null? What does it contain?"
+          example: "Frank Herbert was an American science fiction author best known for the Dune series."
+        photoUrl:
+          type: ["string", "null"]
+          format: uri
+          description: "TODO: When is this null? What image dimensions are served?"
+          example: "https://images.example.com/authors/frank-herbert.jpg"
+        websiteUrl:
+          type: ["string", "null"]
+          format: uri
+          description: "TODO: When is this null — is it the author's official website?"
+          example: "https://www.dunenovels.com"
+        createdAt:
+          type: string
+          format: date-time
+          readOnly: true
+          example: "2024-01-01T00:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          readOnly: true
+          example: "2024-06-01T00:00:00Z"
+
+    Retailer:
+      type: object
+      description: "TODO: Describe the Retailer resource — what does it represent in the context of a book purchase?"
+      required:
+        - id
+        - name
+        - type
+        - availability
+        - price
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: "TODO: Unique identifier of the retailer listing for this book"
+          readOnly: true
+          example: 01938b00-aaaa-7abc-8def-000000000001
+        name:
+          type: string
+          description: "TODO: The display name of the retailer"
+          example: "Amazon"
+        type:
+          $ref: '#/components/schemas/RetailerType'
+        availability:
+          $ref: '#/components/schemas/Availability'
+        price:
+          $ref: '#/components/schemas/Money'
+        url:
+          type: ["string", "null"]
+          format: uri
+          description: "TODO: When is this present vs null — is it always present for online retailers?"
+          example: "https://www.amazon.com/dp/0441013597"
+        address:
+          type: ["string", "null"]
+          description: "TODO: When is this present vs null — is it always present for physical retailers?"
+          example: null
+
+    ReadingListEntry:
+      type: object
+      description: "TODO: Describe the ReadingListEntry — what does it track, who does it belong to?"
+      required:
+        - bookId
+        - status
+        - addedAt
+        - updatedAt
+      properties:
+        bookId:
+          type: string
+          format: uuid
+          description: "TODO: The book this entry refers to — how does a consumer resolve it to full Book details?"
+          example: 01938a7c-1234-7abc-8def-0123456789ab
+        status:
+          $ref: '#/components/schemas/ReadingStatus'
+        addedAt:
+          type: string
+          format: date-time
+          description: "TODO: When the book was added to the reading list"
+          readOnly: true
+          example: "2025-03-01T10:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          readOnly: true
+          example: "2025-03-15T11:00:00Z"
+
+    ReadingListEntryRequest:
+      type: object
+      description: "TODO: Distinguish from ReadingListEntry — this is the write shape (request body). ReadOnly fields are excluded."
+      required:
+        - bookId
+        - status
+      properties:
+        bookId:
+          type: string
+          format: uuid
+          description: "TODO: The UUID of the book to add or update"
+          example: 01938a7c-1234-7abc-8def-0123456789ab
+        status:
+          $ref: '#/components/schemas/ReadingStatus'
+
+    # ---- Collection wrappers ----
+
+    PaginationMeta:
+      type: object
+      description: Pagination metadata returned with every collection response.
+      required:
+        - totalCount
+        - limit
+        - offset
+      properties:
+        totalCount:
+          type: integer
+          description: "TODO: Total number of items matching the current filters, across all pages — not just this page"
+          example: 312
+        limit:
+          type: integer
+          description: "TODO: The number of items per page as applied — may be less than requested if clamped"
+          example: 50
+        offset:
+          type: integer
+          description: "TODO: The zero-based index of the first item in this page"
+          example: 0
+
+    BookCollection:
+      type: object
+      description: "TODO: Describe the BookCollection — it wraps a page of Book objects with pagination metadata"
+      required:
+        - data
+        - meta
+      properties:
+        data:
+          type: array
+          description: "TODO: The array of Book objects on this page — may be empty"
+          items:
+            $ref: '#/components/schemas/Book'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    AuthorCollection:
+      type: object
+      description: "TODO: Describe the AuthorCollection"
+      required:
+        - data
+        - meta
+      properties:
+        data:
+          type: array
+          description: "TODO: The array of Author objects on this page"
+          items:
+            $ref: '#/components/schemas/Author'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    RetailerCollection:
+      type: object
+      description: "TODO: Describe the RetailerCollection"
+      required:
+        - data
+        - meta
+      properties:
+        data:
+          type: array
+          description: "TODO: The array of Retailer objects on this page"
+          items:
+            $ref: '#/components/schemas/Retailer'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    ReadingListCollection:
+      type: object
+      description: "TODO: Describe the ReadingListCollection"
+      required:
+        - data
+        - meta
+      properties:
+        data:
+          type: array
+          description: "TODO: The array of ReadingListEntry objects on this page"
+          items:
+            $ref: '#/components/schemas/ReadingListEntry'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    # -----------------------------------------------------------------------
+    # Error Responses — RFC 9457 Problem Details
+    # -----------------------------------------------------------------------
+    #
+    # These response definitions follow RFC 9457 Problem Details for HTTP APIs.
+    # The ProblemDetails schema below is an inline copy for workshop self-containedness.
+    #
+    # In production, you can reference the canonical jentic/api-problem-details
+    # components directly as external $refs instead of defining them inline:
+    #
+    #   responses:
+    #     '400':
+    #       $ref: 'https://raw.githubusercontent.com/jentic/api-problem-details/refs/heads/main/responses/400-bad-request.yaml'
+    #     '401':
+    #       $ref: 'https://raw.githubusercontent.com/jentic/api-problem-details/refs/heads/main/responses/401-unauthorized.yaml'
+    #     '404':
+    #       $ref: 'https://raw.githubusercontent.com/jentic/api-problem-details/refs/heads/main/responses/404-not-found.yaml'
+    #     '409':
+    #       $ref: 'https://raw.githubusercontent.com/jentic/api-problem-details/refs/heads/main/responses/409-conflict.yaml'
+    #     '500':
+    #       $ref: 'https://raw.githubusercontent.com/jentic/api-problem-details/refs/heads/main/responses/500-server-error.yaml'
+    #
+    # See: https://github.com/jentic/api-problem-details
+    #
+    ProblemDetails:
+      type: object
+      description: >-
+        RFC 9457 Problem Details error response. Used for all 4xx and 5xx responses
+        with Content-Type: application/problem+json.
+      required:
+        - type
+        - title
+        - status
+      properties:
+        type:
+          type: string
+          format: uri
+          description: A URI that identifies the error type. Use "about:blank" when no specific type URI exists.
+          example: "about:blank"
+        title:
+          type: string
+          description: Short, stable, human-readable summary of the error class. Does not change between occurrences.
+          example: "Bad Request"
+        status:
+          type: integer
+          description: HTTP status code. Mirrors the response status.
+          example: 400
+        detail:
+          type: string
+          description: Human-readable explanation specific to this occurrence. Should help the caller recover.
+          example: "The request body has 1 invalid field."
+        instance:
+          type: string
+          description: A URI reference that identifies this specific occurrence of the problem.
+          example: "/books"
+        errors:
+          type: array
+          description: Validation error details. Present on 400 responses when field-level errors exist.
+          items:
+            type: object
+            required:
+              - name
+              - reason
+            properties:
+              name:
+                type: string
+                description: The name of the field or parameter that failed validation.
+                example: "genre"
+              reason:
+                type: string
+                description: Why the field failed validation.
+                example: "must be one of: fiction, non-fiction, science, history, biography, technology, children"
+
+  responses:
+    BadRequest:
+      description: The request was malformed or contained invalid parameters.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          example:
+            type: "about:blank"
+            title: "Bad Request"
+            status: 400
+            detail: "The request body has 1 invalid field."
+            instance: "/books"
+            errors:
+              - name: "genre"
+                reason: "must be one of: fiction, non-fiction, science, history, biography, technology, children"
+
+    Unauthorized:
+      description: Authentication credentials are missing or invalid.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          example:
+            type: "about:blank"
+            title: "Unauthorized"
+            status: 401
+            detail: "A valid Bearer token must be provided in the Authorization header."
+            instance: "/reading-lists/me"
+
+    NotFound:
+      description: The requested resource does not exist.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          example:
+            type: "about:blank"
+            title: "Not Found"
+            status: 404
+            detail: "No book with the given ID was found."
+            instance: "/books/01938a7c-1234-7abc-8def-0123456789ab"
+
+    Conflict:
+      description: The resource already exists or the operation conflicts with current state.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          example:
+            type: "about:blank"
+            title: "Conflict"
+            status: 409
+            detail: "This book is already in your reading list."
+            instance: "/reading-lists/me/entries"
+
+    InternalServerError:
+      description: An unexpected error occurred on the server.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          example:
+            type: "about:blank"
+            title: "Internal Server Error"
+            status: 500
+            detail: "An unexpected error occurred. Please try again later."
+            instance: "/books"

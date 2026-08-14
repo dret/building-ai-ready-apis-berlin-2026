@@ -1,0 +1,43 @@
+extends:
+  - spectral:arazzo
+
+rules:
+  # Ensure every workflow has a description
+  arazzo-workflow-description:
+    description: Workflows must have a description explaining their purpose.
+    message: "Workflow '{{property}}' is missing a description."
+    severity: warn
+    given: "$.workflows[*]"
+    then:
+      field: description
+      function: truthy
+
+  # Ensure every step has a description
+  arazzo-step-description:
+    description: Steps should have a description explaining what they do.
+    message: "Step '{{property}}' is missing a description."
+    severity: warn
+    given: "$.workflows[*].steps[*]"
+    then:
+      field: description
+      function: truthy
+
+  # Ensure every workflow defines outputs
+  arazzo-workflow-outputs:
+    description: Workflows should declare their outputs for downstream consumers.
+    message: "Workflow '{{property}}' does not declare any outputs."
+    severity: warn
+    given: "$.workflows[*]"
+    then:
+      field: outputs
+      function: truthy
+
+  # Ensure source descriptions use local paths or HTTPS
+  arazzo-source-description-url:
+    description: Source description URLs must be non-empty.
+    message: "Source description '{{property}}' has an empty URL."
+    severity: error
+    given: "$.sourceDescriptions[*]"
+    then:
+      field: url
+      function: truthy
