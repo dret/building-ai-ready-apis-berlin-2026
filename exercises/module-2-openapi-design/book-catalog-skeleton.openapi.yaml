@@ -25,15 +25,6 @@ tags:
   - name: reading-lists
     description: "TODO: Describe the reading list resource — mention it requires authentication"
 
-# Security scheme for authenticated endpoints
-components:
-  securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-      description: "TODO: Describe when and how this is used, and how to obtain a token"
-
 paths:
 
   # -----------------------------------------------------------------------
@@ -414,6 +405,13 @@ paths:
 # -----------------------------------------------------------------------
 components:
 
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: "TODO: Describe when and how this is used, and how to obtain a token"
+
   parameters:
     bookIdParam:
       name: bookId
@@ -505,15 +503,15 @@ components:
 
     Money:
       type: object
-      description: "TODO: Explain why decimal string is used instead of number — hint: floating point precision"
+      description: "TODO: Describe the Money value object — why is amount an integer and not a decimal number? What does 1999 mean for USD?"
       required:
         - amount
         - currency
       properties:
         amount:
-          type: string
-          description: "TODO: Describe the format — how many decimal places? Is it always positive?"
-          example: "19.99"
+          type: integer
+          description: "TODO: Describe the unit — e.g. amount in the smallest currency unit (cents for USD/EUR). 1999 = $19.99."
+          example: 1999
         currency:
           type: string
           description: ISO 4217 currency code

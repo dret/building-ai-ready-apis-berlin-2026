@@ -9,7 +9,7 @@
 ## Overview
 
 OpenAPI describes individual operations. Arazzo describes how those operations
-are chained together into a workflow.
+are weaved together into a workflow.
 
 In this module you'll author an Arazzo 1.0.1 specification that models a
 five-step book purchase workflow spanning two APIs:
@@ -82,9 +82,12 @@ with the ready-made prompt in `arazzo-gpt-prompt.md`.
 Use the `jentic-workflows` skill directly in Claude Code.
 Follow the instructions in `jentic-workflows-prompt.md`.
 
-### Path C — Write It Manually
+### Path C — Build It Manually
 
-Use the workflow requirements and the Arazzo 1.0.1 structure below as your guide.
+Use Jentic's [Arazzo Editor](https://jentic.com/arazzo-editor) to manually construct the workflow. 
+You can copy the Arazzo 1.0.1 structure below as your guide.
+
+> Alternatively, you can use VSCode to manually create and use a visualizer from the marketplace to render your workflow.
 
 **Minimal Arazzo structure:**
 
@@ -158,7 +161,22 @@ Common issues to look for:
 
 ---
 
-## Part 4 — Review and Discuss (5 min)
+## Part 4 — Visualise in Arazzo UI (5 min)
+
+Load your spec into the [Arazzo UI](https://arazzo-ui.jentic.com/) to see the workflow rendered as a diagram:
+
+1. Go to [arazzo-ui.jentic.com](https://arazzo-ui.jentic.com/)
+2. Paste your `book-purchase.arazzo.yaml`
+3. Confirm all five steps appear in the correct order
+4. Check that the data-flow edges between steps are visible (inputs → step → outputs)
+
+This is a useful sanity check before the review discussion — if a step is missing or disconnected, it usually points to a runtime expression typo or a missing `outputs` declaration.
+
+**Want to share or document the workflow?** Load the spec into [jentic.com/arazzo-editor](https://jentic.com/arazzo-editor) and use the export options to download the rendered workflow as Markdown or HTML.
+
+---
+
+## Part 5 — Review and Discuss (5 min)
 
 1. **Data flow check** — trace the `bookId` from `$inputs.bookId` through
    `$steps.getBookDetails.outputs.bookId` into the `createOrder` request body.
