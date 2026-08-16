@@ -1,0 +1,15 @@
+overlay: 1.0.0
+info:
+  title: Audience Targeting — Remove Internal Admin Endpoints
+  version: 1.0.0
+  description: >-
+    Removes internal admin-only endpoints from the public-facing Book Catalog API spec.
+    These endpoints are not intended for external consumers and must not appear in the
+    public developer portal or be discoverable by AI agents.
+actions:
+  - target: "$.paths['/books']['post']"
+    remove: true
+  - target: "$.paths['/books/{bookId}']['put']"
+    remove: true
+  - target: "$.components.schemas['BookRequest']"
+    remove: true

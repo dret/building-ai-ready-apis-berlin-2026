@@ -1,0 +1,332 @@
+openapi: "3.0.3"
+info:
+  title: Book API
+  version: "1"
+
+servers:
+  - url: http://api.example.com/api/v1
+
+paths:
+  /api/v1/books/list:
+    get:
+      operationId: getbooks
+      summary: get books
+      parameters:
+        - name: genre
+          in: query
+          schema:
+            type: string
+        - name: author_id
+          in: query
+          schema:
+            type: string
+        - name: min_rating
+          in: query
+          schema:
+            type: number
+        - name: max_price
+          in: query
+          schema:
+            type: number
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    book_id:
+                      type: string
+                    BookTitle:
+                      type: string
+                    Author:
+                      type: string
+                    genre:
+                      type: string
+                    published:
+                      type: string
+                    pages:
+                      type: integer
+                    avg_rating:
+                      type: number
+                    price:
+                      type: number
+                    cover:
+                      type: string
+
+  /api/v1/books/{id}:
+    get:
+      operationId: getBook
+      summary: get a book
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  book_id:
+                    type: string
+                  BookTitle:
+                    type: string
+                  Author:
+                    type: string
+                  author_id:
+                    type: string
+                  genre:
+                    type: string
+                  description:
+                    type: string
+                  published:
+                    type: string
+                  pages:
+                    type: integer
+                  avg_rating:
+                    type: number
+                  Price:
+                    type: number
+                  cover_img:
+                    type: string
+        "404":
+          description: not found
+
+  /api/v1/books/{id}/buy-locations:
+    get:
+      operationId: getBuyLocations
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    location_id:
+                      type: string
+                    location_name:
+                      type: string
+                    loc_type:
+                      type: string
+                    stock_status:
+                      type: string
+                    price:
+                      type: number
+                    URL:
+                      type: string
+                    physical_address:
+                      type: string
+
+  /api/v1/author:
+    get:
+      operationId: getAuthors
+      parameters:
+        - name: name_search
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    author_id:
+                      type: string
+                    AuthorName:
+                      type: string
+                    bio:
+                      type: string
+                    photo:
+                      type: string
+                    website:
+                      type: string
+
+  /api/v1/author/{author_id}:
+    get:
+      operationId: getAuthor
+      parameters:
+        - name: author_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  author_id:
+                    type: string
+                  AuthorName:
+                    type: string
+                  bio:
+                    type: string
+                  photo:
+                    type: string
+                  website:
+                    type: string
+        "404":
+          description: not found
+
+  /api/v1/author/{author_id}/books:
+    get:
+      operationId: getAuthorBooks
+      parameters:
+        - name: author_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+
+  /api/v1/user/readinglist:
+    get:
+      operationId: getReadingList
+      parameters:
+        - name: user_token
+          in: query
+          schema:
+            type: string
+        - name: filter
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        bookId:
+                          type: string
+                        Status:
+                          type: string
+                        date_added:
+                          type: string
+
+    post:
+      operationId: addToReadingList
+      parameters:
+        - name: user_token
+          in: query
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                bookId:
+                  type: string
+                Status:
+                  type: string
+      responses:
+        "200":
+          description: added
+
+  /api/v1/user/readinglist/remove:
+    post:
+      operationId: removeFromReadingList
+      parameters:
+        - name: user_token
+          in: query
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                bookId:
+                  type: string
+      responses:
+        "200":
+          description: removed
+
+  /api/v1/user/readinglist/update_status:
+    post:
+      operationId: updateReadingListStatus
+      parameters:
+        - name: user_token
+          in: query
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                bookId:
+                  type: string
+                new_status:
+                  type: string
+      responses:
+        "200":
+          description: ok

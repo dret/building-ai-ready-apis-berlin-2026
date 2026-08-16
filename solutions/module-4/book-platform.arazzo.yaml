@@ -1,0 +1,189 @@
+arazzo: 1.0.1
+info:
+  title: Book Platform Workflows
+  version: 1.0.0
+  description: >-
+    Workflows for the Book Platform. Combines the Book Catalog API and the
+    Book Orders API to model end-to-end user journeys across both services.
+
+sourceDescriptions:
+  - name: bookCatalog
+    url: ./book-catalog-governed.openapi.yaml
+    type: openapi
+  - name: bookOrders
+    url: ./book-orders.openapi.yaml
+    type: openapi
+
+workflows:
+  - workflowId: purchaseBook
+    summary: Purchase a specific book
+    description: >-
+      A deterministic five-step workflow that takes a known book ID through to a
+      confirmed purchase. The workflow verifies the book exists, checks that at
+      least one retailer has it in stock, places an order, processes payment, and
+      retrieves the final confirmed order record.
+
+      Spans both the Book Catalog API (steps 1–2) and the Book Orders API (steps 3–5).
+      Steps 3, 4, and 5 require an authenticated Bearer token.
+
+      The workflow terminates early if no retailers are in stock (after step 2) or
+      if payment is declined (after step 4). On success, it returns the confirmed
+      orderId, orderStatus, and total amount paid.
+
+    inputs:
+      type: object
+      properties:
+        bookId:
+          type: string
+          format: uuid
+          description: >-
+            The UUID of the book to purchase. Must be a valid book ID from the
+            Book Catalog API. Obtain via GET /books or GET /books/{bookId}.
+        paymentMethod:
+          type: string
+          enum:
+            - card
+            - wallet
+          description: >-
+            The payment instrument to use. `card` charges a saved payment card;
+            `wallet` uses the platform wallet balance.
+        bearerToken:
+          type: string
+          description: >-
+            JWT for authenticating requests to the Book Orders API. Do not include
+            the "Bearer " prefix — it is added automatically in each step.
+      required:
+        - bookId
+        - paymentMethod
+        - bearerToken
+
+    outputs:
+      orderId: $steps.confirmOrder.outputs.orderId
+      orderStatus: $steps.confirmOrder.outputs.orderStatus
+      totalPaid: $steps.confirmOrder.outputs.totalPaid
+
+    steps:
+
+      # ------------------------------------------------------------------
+      # Step 1 — Verify the book exists and retrieve its details
+      # ------------------------------------------------------------------
+      - stepId: getBookDetails
+        description: >-
+          Retrieves the full book record from the catalog to verify the book
+          exists and capture its ID for use in subsequent steps.
+        operationId: getBook
+        parameters:
+          - name: bookId
+            in: path
+            value: $inputs.bookId
+        successCriteria:
+          - condition: $statusCode == 200
+        outputs:
+          bookId: $response.body#/id
+          title: $response.body#/title
+          price: $response.body#/price
+
+      # ------------------------------------------------------------------
+      # Step 2 — Find in-stock retailers for this book
+      # ------------------------------------------------------------------
+      - stepId: findRetailers
+        description: >-
+          Retrieves the list of retailers stocking this book. The workflow
+          requires at least one retailer to be available before placing an order.
+          If no retailers are found, the workflow terminates.
+        operationId: listBookRetailers
+        parameters:
+          - name: bookId
+            in: path
+            value: $steps.getBookDetails.outputs.bookId
+        successCriteria:
+          - condition: $statusCode == 200
+          # Verify at least one retailer listing exists.
+          # In production, filter by availability == 'in-stock' before proceeding.
+          - condition: $response.body#/meta/totalCount > 0
+        onFailure:
+          - name: noRetailersAvailable
+            type: end
+        outputs:
+          # Capture the first retailer's price for reference (informational only)
+          firstRetailerPrice: $response.body#/data/0/price
+
+      # ------------------------------------------------------------------
+      # Step 3 — Place the order
+      # ------------------------------------------------------------------
+      - stepId: createOrder
+        description: >-
+          Creates a new purchase order for one copy of the book. The order is
+          created in `pending` status. The orderId from this step is used in
+          steps 4 and 5.
+        operationId: createOrder
+        parameters:
+          - name: Authorization
+            in: header
+            value: "Bearer {$inputs.bearerToken}"
+        requestBody:
+          contentType: application/json
+          payload:
+            items:
+              - bookId: $steps.getBookDetails.outputs.bookId
+                quantity: 1
+        successCriteria:
+          - condition: $statusCode == 201
+        outputs:
+          orderId: $response.body#/id
+
+      # ------------------------------------------------------------------
+      # Step 4 — Process payment
+      # ------------------------------------------------------------------
+      - stepId: processPayment
+        description: >-
+          Initiates payment for the order using the chosen payment method.
+          IMPORTANT: This endpoint returns HTTP 200 for both succeeded and failed
+          payments. The successCriteria checks the response body `status` field,
+          not just the HTTP status code. If payment fails, the workflow terminates.
+        operationId: processPayment
+        parameters:
+          - name: orderId
+            in: path
+            value: $steps.createOrder.outputs.orderId
+          - name: Authorization
+            in: header
+            value: "Bearer {$inputs.bearerToken}"
+        requestBody:
+          contentType: application/json
+          payload:
+            paymentMethod: $inputs.paymentMethod
+        successCriteria:
+          - condition: $statusCode == 200
+          # HTTP 200 is returned for both success and failure — check the body
+          - condition: $response.body#/status == 'succeeded'
+        onFailure:
+          - name: paymentDeclined
+            type: end
+        outputs:
+          paymentStatus: $response.body#/status
+          failureReason: $response.body#/failureReason
+
+      # ------------------------------------------------------------------
+      # Step 5 — Confirm the order
+      # ------------------------------------------------------------------
+      - stepId: confirmOrder
+        description: >-
+          Retrieves the final order record after successful payment. Verifies the
+          order has reached `confirmed` status. The order details are surfaced as
+          the workflow's outputs.
+        operationId: getOrder
+        parameters:
+          - name: orderId
+            in: path
+            value: $steps.createOrder.outputs.orderId
+          - name: Authorization
+            in: header
+            value: "Bearer {$inputs.bearerToken}"
+        successCriteria:
+          - condition: $statusCode == 200
+          - condition: $response.body#/status == 'confirmed'
+        outputs:
+          orderId: $response.body#/id
+          orderStatus: $response.body#/status
+          totalPaid: $response.body#/subtotal/amount

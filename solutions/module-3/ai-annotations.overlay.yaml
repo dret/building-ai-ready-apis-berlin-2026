@@ -1,0 +1,29 @@
+overlay: 1.0.0
+info:
+  title: MCP Tool Metadata — Reading List Operations
+  version: 1.0.0
+  description: >-
+    Adds x-mcp-tool-name and x-agent-hint extensions to reading list operations.
+    These extensions give MCP clients a stable tool name and a one-line behavioural
+    contract for each operation: whether it is safe, destructive, or requires
+    preconditions.
+actions:
+  - target: "$.paths['/reading-lists/me']['get']"
+    update:
+      x-mcp-tool-name: get_my_reading_list
+      x-agent-hint: "Safe, read-only. Returns the authenticated user's list only. Use this to check for a book before calling add_to_reading_list."
+
+  - target: "$.paths['/reading-lists/me/entries']['post']"
+    update:
+      x-mcp-tool-name: add_to_reading_list
+      x-agent-hint: "Write operation. Returns 409 if the book is already on the list. Call get_my_reading_list first to avoid unnecessary errors."
+
+  - target: "$.paths['/reading-lists/me/entries/{bookId}']['put']"
+    update:
+      x-mcp-tool-name: update_reading_list_entry
+      x-agent-hint: "Write, idempotent. Updates status only. The book must already be on the list — 404 if not."
+
+  - target: "$.paths['/reading-lists/me/entries/{bookId}']['delete']"
+    update:
+      x-mcp-tool-name: remove_from_reading_list
+      x-agent-hint: "Destructive and irreversible. Permanently removes the entry. Require explicit user confirmation before calling."

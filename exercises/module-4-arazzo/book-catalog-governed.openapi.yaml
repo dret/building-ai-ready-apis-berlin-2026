@@ -1,0 +1,1320 @@
+openapi: 3.1.2
+info:
+  title: Book Catalog API
+  version: 1.0.0
+  description: >-
+    The Book Catalog API provides access to a curated catalog of books and authors.
+    It supports public discovery (browse, search, retailer lookup) and authenticated
+    reading list management for registered users.
+
+    This API is designed to be safely consumed by both human developers and AI agents.
+    All operations have deterministic inputs and outputs, unambiguous error responses,
+    and consistent naming conventions throughout.
+  contact:
+    name: API Platform Team
+    url: https://developer.example.com/support
+    email: api-support@example.com
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+
+servers:
+  - url: https://api.example.com
+    description: Production
+
+tags:
+  - name: books
+    description: Search and retrieve books from the catalog.
+  - name: authors
+    description: Browse author profiles and their associated books.
+  - name: reading-lists
+    description: Manage a personal reading list. All operations require authentication.
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: >-
+        Bearer JWT token issued by the Book Platform authentication service.
+        Required for all reading-list endpoints. Include in the Authorization header:
+        `Authorization: Bearer <token>`
+
+  parameters:
+    bookIdParam:
+      name: bookId
+      in: path
+      required: true
+      description: Unique identifier (UUID v7) of the book.
+      schema:
+        type: string
+        format: uuid
+        example: 01938a7c-1234-7abc-8def-0123456789ab
+
+    authorIdParam:
+      name: authorId
+      in: path
+      required: true
+      description: Unique identifier (UUID v7) of the author.
+      schema:
+        type: string
+        format: uuid
+        example: 01938a7c-5678-7abc-8def-0123456789cd
+
+    offsetParam:
+      name: offset
+      in: query
+      required: false
+      description: >-
+        Number of items to skip before returning results. Used with `limit` for
+        offset-based pagination. Defaults to 0. Must be a non-negative integer.
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+        example: 0
+
+    limitParam:
+      name: limit
+      in: query
+      required: false
+      description: >-
+        Maximum number of items to return per page. Defaults to 50. Maximum is 1000;
+        requests above the maximum are clamped, not rejected. Use with `offset` to page
+        through large result sets.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 1000
+        default: 50
+        example: 50
+
+  schemas:
+
+    # --- Enums ---
+
+    Genre:
+      type: string
+      description: >-
+        Thematic classification of a book. This is an open enum — consumers must
+        tolerate unknown values gracefully in case new genres are added.
+      enum:
+        - fiction
+        - non-fiction
+        - science
+        - history
+        - biography
+        - technology
+        - children
+      example: fiction
+
+    RetailerType:
+      type: string
+      description: >-
+        Whether the retailer sells online (via a URL) or in a physical store (with
+        an address). Determines which of `url` or `address` will be populated.
+      enum:
+        - online
+        - physical
+      example: online
+
+    Availability:
+      type: string
+      description: >-
+        Current availability of a book at a specific retailer. `in-stock` means
+        the book can be purchased immediately. `out-of-stock` means temporarily
+        unavailable. `pre-order` means the book has not yet been released but can
+        be reserved. Consumers should surface `in-stock` retailers first.
+      enum:
+        - in-stock
+        - out-of-stock
+        - pre-order
+      example: in-stock
+
+    ReadingStatus:
+      type: string
+      description: >-
+        The user's current reading status for a book on their reading list.
+        `want-to-read`: queued but not started. `reading`: in progress.
+        `finished`: completed.
+      enum:
+        - want-to-read
+        - reading
+        - finished
+      example: want-to-read
+
+    # --- Value objects ---
+
+    Money:
+      type: object
+      description: >-
+        A monetary amount represented as a decimal string to avoid floating-point
+        precision errors. Always paired with an ISO 4217 currency code.
+        Example: `{ "amount": "19.99", "currency": "USD" }`.
+      required:
+        - amount
+        - currency
+      properties:
+        amount:
+          type: string
+          description: >-
+            Decimal string representation of the monetary amount.
+            Use string comparison for equality; parse with a decimal library for arithmetic.
+          pattern: '^\d+(\.\d{1,2})?$'
+          example: "19.99"
+        currency:
+          type: string
+          description: ISO 4217 three-letter currency code.
+          minLength: 3
+          maxLength: 3
+          example: USD
+      example:
+        amount: "19.99"
+        currency: USD
+
+    # --- Core resources ---
+
+    Book:
+      type: object
+      description: >-
+        A book in the catalog. Contains bibliographic metadata, pricing, and the
+        system-calculated average rating. The `authorId` field references the
+        Author resource; use `GET /authors/{authorId}` to retrieve full author details.
+      required:
+        - id
+        - title
+        - description
+        - genre
+        - publishedAt
+        - pageCount
+        - price
+        - authorId
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the book, assigned at creation.
+          readOnly: true
+          example: 01938a7c-1234-7abc-8def-0123456789ab
+        title:
+          type: string
+          description: Full title of the book as it appears on the cover.
+          example: Dune
+        description:
+          type: string
+          description: >-
+            Publisher-provided synopsis or description of the book's content
+            and themes. Suitable for display to end users.
+          example: >-
+            Set in the distant future amidst a feudal interstellar society, Dune tells
+            the story of young Paul Atreides as his family accepts control of the desert
+            planet Arrakis, the only source of the most valuable substance in the universe.
+        genre:
+          $ref: '#/components/schemas/Genre'
+        publishedAt:
+          type: string
+          format: date
+          description: The date the book was first published, in ISO 8601 format (YYYY-MM-DD).
+          example: "1965-08-01"
+        pageCount:
+          type: integer
+          description: Total number of pages in the standard print edition.
+          minimum: 1
+          example: 412
+        averageRating:
+          type: ["number", "null"]
+          description: >-
+            System-calculated average rating across all user reviews, on a scale of 1.0
+            to 5.0. Null if no reviews have been submitted yet.
+          minimum: 1
+          maximum: 5
+          readOnly: true
+          example: 4.7
+        price:
+          $ref: '#/components/schemas/Money'
+        coverImageUrl:
+          type: ["string", "null"]
+          format: uri
+          description: Absolute URL to the book's cover image. Null if no image is available.
+          example: "https://images.example.com/books/01938a7c-1234.jpg"
+        authorId:
+          type: string
+          format: uuid
+          description: >-
+            Unique identifier of the book's primary author. Use `GET /authors/{authorId}`
+            to retrieve the full author profile.
+          example: 01938a7c-5678-7abc-8def-0123456789cd
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when this book record was added to the catalog.
+          readOnly: true
+          example: "2024-01-15T09:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp of the most recent update to this book record.
+          readOnly: true
+          example: "2024-06-20T14:30:00Z"
+      example:
+        id: 01938a7c-1234-7abc-8def-0123456789ab
+        title: Dune
+        description: >-
+          Set in the distant future amidst a feudal interstellar society, Dune tells
+          the story of young Paul Atreides.
+        genre: fiction
+        publishedAt: "1965-08-01"
+        pageCount: 412
+        averageRating: 4.7
+        price:
+          amount: "19.99"
+          currency: USD
+        coverImageUrl: "https://images.example.com/books/01938a7c-1234.jpg"
+        authorId: 01938a7c-5678-7abc-8def-0123456789cd
+        createdAt: "2024-01-15T09:00:00Z"
+        updatedAt: "2024-06-20T14:30:00Z"
+
+    Author:
+      type: object
+      description: >-
+        An author profile. Contains biographical information and links.
+        Use `GET /authors/{authorId}/books` to retrieve a paginated list of
+        books written by this author.
+      required:
+        - id
+        - name
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the author.
+          readOnly: true
+          example: 01938a7c-5678-7abc-8def-0123456789cd
+        name:
+          type: string
+          description: Full name of the author as it appears on published works.
+          example: Frank Herbert
+        biography:
+          type: ["string", "null"]
+          description: >-
+            Short biographical summary of the author's life and major works.
+            Null if no biography has been provided.
+          example: >-
+            Frank Herbert was an American science fiction author best known for the
+            Dune series of novels, which is cited as the best-selling science fiction
+            series of all time.
+        photoUrl:
+          type: ["string", "null"]
+          format: uri
+          description: Absolute URL to the author's photo. Null if unavailable.
+          example: "https://images.example.com/authors/frank-herbert.jpg"
+        websiteUrl:
+          type: ["string", "null"]
+          format: uri
+          description: The author's official website URL. Null if not provided.
+          example: "https://www.dunenovels.com"
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when this author record was added.
+          readOnly: true
+          example: "2024-01-01T00:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp of the most recent update to this author record.
+          readOnly: true
+          example: "2024-06-01T00:00:00Z"
+      example:
+        id: 01938a7c-5678-7abc-8def-0123456789cd
+        name: Frank Herbert
+        biography: >-
+          Frank Herbert was an American science fiction author best known for the Dune series.
+        photoUrl: "https://images.example.com/authors/frank-herbert.jpg"
+        websiteUrl: "https://www.dunenovels.com"
+        createdAt: "2024-01-01T00:00:00Z"
+        updatedAt: "2024-06-01T00:00:00Z"
+
+    Retailer:
+      type: object
+      description: >-
+        A retailer that stocks a specific book, including current availability and
+        their price for that book. The `type` field determines which of `url` (online)
+        or `address` (physical) will be populated.
+      required:
+        - id
+        - name
+        - type
+        - availability
+        - price
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the retailer record.
+          readOnly: true
+          example: 01938b00-aaaa-7abc-8def-000000000001
+        name:
+          type: string
+          description: Display name of the retailer.
+          example: Amazon
+        type:
+          $ref: '#/components/schemas/RetailerType'
+        availability:
+          $ref: '#/components/schemas/Availability'
+        price:
+          $ref: '#/components/schemas/Money'
+        url:
+          type: ["string", "null"]
+          format: uri
+          description: >-
+            Direct URL to the book's product page at this retailer. Present when
+            `type` is `online`, null for physical retailers.
+          example: "https://www.amazon.com/dp/0441013597"
+        address:
+          type: ["string", "null"]
+          description: >-
+            Street address of the physical store location. Present when `type` is
+            `physical`, null for online retailers.
+          example: null
+      example:
+        id: 01938b00-aaaa-7abc-8def-000000000001
+        name: Amazon
+        type: online
+        availability: in-stock
+        price:
+          amount: "14.99"
+          currency: USD
+        url: "https://www.amazon.com/dp/0441013597"
+        address: null
+
+    ReadingListEntry:
+      type: object
+      description: >-
+        An entry in a user's personal reading list, recording which book they have
+        added and their current reading status.
+      required:
+        - bookId
+        - status
+        - addedAt
+        - updatedAt
+      properties:
+        bookId:
+          type: string
+          format: uuid
+          description: >-
+            Unique identifier of the book on the reading list. Use `GET /books/{bookId}`
+            to retrieve the full book details.
+          example: 01938a7c-1234-7abc-8def-0123456789ab
+        status:
+          $ref: '#/components/schemas/ReadingStatus'
+        addedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the book was added to the reading list.
+          readOnly: true
+          example: "2025-03-01T10:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp of the most recent status update for this entry.
+          readOnly: true
+          example: "2025-03-15T11:00:00Z"
+      example:
+        bookId: 01938a7c-1234-7abc-8def-0123456789ab
+        status: reading
+        addedAt: "2025-03-01T10:00:00Z"
+        updatedAt: "2025-03-15T11:00:00Z"
+
+    ReadingListEntryRequest:
+      type: object
+      description: >-
+        Request body for adding a new book to the reading list or updating the
+        status of an existing entry.
+      required:
+        - bookId
+        - status
+      properties:
+        bookId:
+          type: string
+          format: uuid
+          description: >-
+            Unique identifier of the book to add or update. The book must exist
+            in the catalog; a 404 is returned if it does not.
+          example: 01938a7c-1234-7abc-8def-0123456789ab
+        status:
+          $ref: '#/components/schemas/ReadingStatus'
+      example:
+        bookId: 01938a7c-1234-7abc-8def-0123456789ab
+        status: want-to-read
+
+    # --- Collection wrappers ---
+
+    PaginationMeta:
+      type: object
+      description: >-
+        Pagination metadata returned with every collection response. Use `totalCount`
+        to determine whether more pages exist: if `offset + limit < totalCount`, there
+        are more results. Fetch the next page by incrementing `offset` by `limit`.
+      required:
+        - totalCount
+        - limit
+        - offset
+      properties:
+        totalCount:
+          type: integer
+          description: >-
+            Total number of items matching the current filter criteria across all pages.
+            Always present, even when the full result set fits on a single page.
+          minimum: 0
+          example: 312
+        limit:
+          type: integer
+          description: The maximum number of items per page applied to this response.
+          example: 50
+        offset:
+          type: integer
+          description: The number of items skipped before this page of results.
+          example: 0
+      example:
+        totalCount: 312
+        limit: 50
+        offset: 0
+
+    BookCollection:
+      type: object
+      description: A paginated collection of books.
+      required:
+        - data
+        - meta
+      properties:
+        data:
+          type: array
+          description: The page of book results.
+          items:
+            $ref: '#/components/schemas/Book'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+      example:
+        data:
+          - id: 01938a7c-1234-7abc-8def-0123456789ab
+            title: Dune
+            description: Set in the distant future amidst a feudal interstellar society.
+            genre: fiction
+            publishedAt: "1965-08-01"
+            pageCount: 412
+            averageRating: 4.7
+            price:
+              amount: "19.99"
+              currency: USD
+            coverImageUrl: "https://images.example.com/books/01938a7c-1234.jpg"
+            authorId: 01938a7c-5678-7abc-8def-0123456789cd
+            createdAt: "2024-01-15T09:00:00Z"
+            updatedAt: "2024-06-20T14:30:00Z"
+        meta:
+          totalCount: 312
+          limit: 50
+          offset: 0
+
+    AuthorCollection:
+      type: object
+      description: A paginated collection of authors.
+      required:
+        - data
+        - meta
+      properties:
+        data:
+          type: array
+          description: The page of author results.
+          items:
+            $ref: '#/components/schemas/Author'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+      example:
+        data:
+          - id: 01938a7c-5678-7abc-8def-0123456789cd
+            name: Frank Herbert
+            biography: American science fiction author best known for the Dune series.
+            photoUrl: "https://images.example.com/authors/frank-herbert.jpg"
+            websiteUrl: "https://www.dunenovels.com"
+            createdAt: "2024-01-01T00:00:00Z"
+            updatedAt: "2024-06-01T00:00:00Z"
+        meta:
+          totalCount: 48
+          limit: 50
+          offset: 0
+
+    RetailerCollection:
+      type: object
+      description: A paginated collection of retailers for a specific book.
+      required:
+        - data
+        - meta
+      properties:
+        data:
+          type: array
+          description: The page of retailer results for the requested book.
+          items:
+            $ref: '#/components/schemas/Retailer'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+      example:
+        data:
+          - id: 01938b00-aaaa-7abc-8def-000000000001
+            name: Amazon
+            type: online
+            availability: in-stock
+            price:
+              amount: "14.99"
+              currency: USD
+            url: "https://www.amazon.com/dp/0441013597"
+            address: null
+          - id: 01938b00-bbbb-7abc-8def-000000000002
+            name: Waterstones Oxford Street
+            type: physical
+            availability: in-stock
+            price:
+              amount: "19.99"
+              currency: GBP
+            url: null
+            address: "203-206 Oxford Street, London W1D 2LE"
+        meta:
+          totalCount: 7
+          limit: 50
+          offset: 0
+
+    ReadingListCollection:
+      type: object
+      description: A paginated collection of a user's reading list entries.
+      required:
+        - data
+        - meta
+      properties:
+        data:
+          type: array
+          description: The page of reading list entries.
+          items:
+            $ref: '#/components/schemas/ReadingListEntry'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+      example:
+        data:
+          - bookId: 01938a7c-1234-7abc-8def-0123456789ab
+            status: reading
+            addedAt: "2025-03-01T10:00:00Z"
+            updatedAt: "2025-03-15T11:00:00Z"
+        meta:
+          totalCount: 14
+          limit: 50
+          offset: 0
+
+    # --- Error ---
+
+    ProblemDetails:
+      type: object
+      description: >-
+        RFC 9457 Problem Details error response. Returned with Content-Type:
+        application/problem+json on all 4xx and 5xx responses. The `type` field is
+        the machine-readable error identifier — use it for programmatic error handling.
+        The `detail` field is specific to this occurrence and should help the caller
+        recover in a single attempt.
+      required:
+        - type
+        - title
+        - status
+      properties:
+        type:
+          type: string
+          format: uri
+          description: >-
+            A URI that uniquely identifies the error class. Stable and machine-readable.
+            Do not parse the title — use this field for error-type branching.
+          example: "https://api.example.com/problems/validation-error"
+        title:
+          type: string
+          description: Short, stable, human-readable summary of the error class. Same for every occurrence of this error type.
+          example: "Validation error"
+        status:
+          type: integer
+          description: The HTTP status code for this occurrence. Mirrors the response status.
+          example: 400
+        detail:
+          type: string
+          description: >-
+            Human-readable explanation specific to this occurrence of the problem.
+            Should provide enough context for the caller to understand and recover.
+          example: "The request body has 1 invalid field."
+        instance:
+          type: string
+          description: >-
+            A URI reference that identifies this specific occurrence. Commonly the
+            request path, or a unique error-instance URI for traceability.
+          example: "/books"
+        errors:
+          type: array
+          description: >-
+            Field-level validation errors. Present on 400 responses when one or more
+            specific fields are invalid.
+          items:
+            type: object
+            required:
+              - name
+              - reason
+            properties:
+              name:
+                type: string
+                description: The name of the field or query parameter that failed validation.
+                example: genre
+              reason:
+                type: string
+                description: Why the field failed validation. Should be specific enough for one-try recovery.
+                example: "must be one of: fiction, non-fiction, science, history, biography, technology, children"
+      example:
+        type: "https://api.example.com/problems/validation-error"
+        title: "Validation error"
+        status: 400
+        detail: "The request body has 1 invalid field."
+        instance: "/books"
+        errors:
+          - name: genre
+            reason: "must be one of: fiction, non-fiction, science, history, biography, technology, children"
+
+  responses:
+    BadRequest:
+      description: The request was malformed or contained invalid parameters.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          example:
+            type: "https://api.example.com/problems/validation-error"
+            title: "Validation error"
+            status: 400
+            detail: "The request body has 1 invalid field."
+            instance: "/books"
+            errors:
+              - name: genre
+                reason: "must be one of: fiction, non-fiction, science, history, biography, technology, children"
+
+    Unauthorized:
+      description: Authentication credentials are missing or invalid.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          example:
+            type: "https://api.example.com/problems/unauthorized"
+            title: "Unauthorized"
+            status: 401
+            detail: "A valid Bearer token must be provided in the Authorization header."
+            instance: "/reading-lists/me"
+
+    NotFound:
+      description: The requested resource does not exist.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          example:
+            type: "https://api.example.com/problems/not-found"
+            title: "Not found"
+            status: 404
+            detail: "No book with the given ID was found."
+            instance: "/books/01938a7c-1234-7abc-8def-0123456789ab"
+
+    Conflict:
+      description: The resource already exists or the operation conflicts with current state.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          example:
+            type: "https://api.example.com/problems/conflict"
+            title: "Conflict"
+            status: 409
+            detail: "This book is already in your reading list."
+            instance: "/reading-lists/me/entries"
+
+    InternalServerError:
+      description: An unexpected error occurred on the server.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          example:
+            type: "https://api.example.com/problems/internal-server-error"
+            title: "Internal server error"
+            status: 500
+            detail: "An unexpected error occurred. Please try again later."
+            instance: "/books"
+
+paths:
+
+  # =======================================================================
+  # Books
+  # =======================================================================
+
+  /books:
+    get:
+      operationId: listBooks
+      summary: Search and browse books
+      description: >-
+        Returns a paginated list of books from the catalog. Supports filtering by
+        `genre`, `authorId`, `minRating` (1–5), `maxPrice` (in the catalog's default
+        currency), and a free-text search query `q` that matches against title and description.
+
+        All filters are optional and combinable. Omitting all filters returns the full
+        catalog sorted by `createdAt` descending (newest first).
+
+        Returns a `BookCollection` with a `data` array and `meta.totalCount`. If no
+        books match the filters, returns 200 with an empty `data` array — not 404.
+      tags:
+        - books
+      parameters:
+        - $ref: '#/components/parameters/offsetParam'
+        - $ref: '#/components/parameters/limitParam'
+        - name: genre
+          in: query
+          description: >-
+            Filter by genre. Must be one of the Genre enum values. Case-sensitive.
+            Returns only books in the specified genre.
+          required: false
+          schema:
+            $ref: '#/components/schemas/Genre'
+        - name: authorId
+          in: query
+          description: Filter by author UUID. Returns only books by that author.
+          required: false
+          schema:
+            type: string
+            format: uuid
+            example: 01938a7c-5678-7abc-8def-0123456789cd
+        - name: minRating
+          in: query
+          description: >-
+            Filter to books with an average rating greater than or equal to this value.
+            Range: 1.0–5.0. Books with no ratings are excluded when this filter is applied.
+          required: false
+          schema:
+            type: number
+            minimum: 1
+            maximum: 5
+            example: 4.0
+        - name: maxPrice
+          in: query
+          description: >-
+            Filter to books priced at or below this amount (in USD). Decimal values
+            are accepted (e.g., 24.99).
+          required: false
+          schema:
+            type: number
+            minimum: 0
+            example: 24.99
+        - name: q
+          in: query
+          description: >-
+            Free-text search query. Matches against book title and description using
+            case-insensitive substring matching.
+          required: false
+          schema:
+            type: string
+            example: "interstellar"
+      responses:
+        '200':
+          description: A paginated list of books matching the given filters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookCollection'
+              examples:
+                withResults:
+                  summary: Books found
+                  value:
+                    data:
+                      - id: 01938a7c-1234-7abc-8def-0123456789ab
+                        title: Dune
+                        description: Set in the distant future amidst a feudal interstellar society.
+                        genre: fiction
+                        publishedAt: "1965-08-01"
+                        pageCount: 412
+                        averageRating: 4.7
+                        price:
+                          amount: "19.99"
+                          currency: USD
+                        coverImageUrl: "https://images.example.com/books/01938a7c-1234.jpg"
+                        authorId: 01938a7c-5678-7abc-8def-0123456789cd
+                        createdAt: "2024-01-15T09:00:00Z"
+                        updatedAt: "2024-06-20T14:30:00Z"
+                    meta:
+                      totalCount: 312
+                      limit: 50
+                      offset: 0
+                empty:
+                  summary: No books match the filters
+                  value:
+                    data: []
+                    meta:
+                      totalCount: 0
+                      limit: 50
+                      offset: 0
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /books/{bookId}:
+    get:
+      operationId: getBook
+      summary: Get full book details
+      description: >-
+        Returns the complete record for a single book, including bibliographic metadata,
+        pricing, cover image URL, and a reference to its author (`authorId`).
+
+        Use `GET /authors/{authorId}` to retrieve the author's full profile.
+        Use `GET /books/{bookId}/retailers` to find where to purchase this book.
+
+        Returns 404 if no book with the given ID exists in the catalog.
+      tags:
+        - books
+      parameters:
+        - $ref: '#/components/parameters/bookIdParam'
+      responses:
+        '200':
+          description: The requested book.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+              examples:
+                default:
+                  value:
+                    id: 01938a7c-1234-7abc-8def-0123456789ab
+                    title: Dune
+                    description: Set in the distant future amidst a feudal interstellar society.
+                    genre: fiction
+                    publishedAt: "1965-08-01"
+                    pageCount: 412
+                    averageRating: 4.7
+                    price:
+                      amount: "19.99"
+                      currency: USD
+                    coverImageUrl: "https://images.example.com/books/01938a7c-1234.jpg"
+                    authorId: 01938a7c-5678-7abc-8def-0123456789cd
+                    createdAt: "2024-01-15T09:00:00Z"
+                    updatedAt: "2024-06-20T14:30:00Z"
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /books/{bookId}/retailers:
+    get:
+      operationId: listBookRetailers
+      summary: List retailers for a book
+      description: >-
+        Returns a paginated list of retailers that stock a specific book, including
+        each retailer's current availability status and their price.
+
+        Results include both online retailers (with `url` populated) and physical stores
+        (with `address` populated). Consumers building purchasing flows should prioritise
+        retailers where `availability` is `in-stock`.
+
+        Returns 404 if the book does not exist. Returns 200 with an empty `data` array
+        if the book exists but has no retailer listings.
+      tags:
+        - books
+      parameters:
+        - $ref: '#/components/parameters/bookIdParam'
+        - $ref: '#/components/parameters/offsetParam'
+        - $ref: '#/components/parameters/limitParam'
+      responses:
+        '200':
+          description: A paginated list of retailers stocking the specified book.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RetailerCollection'
+              examples:
+                default:
+                  value:
+                    data:
+                      - id: 01938b00-aaaa-7abc-8def-000000000001
+                        name: Amazon
+                        type: online
+                        availability: in-stock
+                        price:
+                          amount: "14.99"
+                          currency: USD
+                        url: "https://www.amazon.com/dp/0441013597"
+                        address: null
+                      - id: 01938b00-bbbb-7abc-8def-000000000002
+                        name: Waterstones Oxford Street
+                        type: physical
+                        availability: in-stock
+                        price:
+                          amount: "19.99"
+                          currency: GBP
+                        url: null
+                        address: "203-206 Oxford Street, London W1D 2LE"
+                    meta:
+                      totalCount: 7
+                      limit: 50
+                      offset: 0
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # =======================================================================
+  # Authors
+  # =======================================================================
+
+  /authors:
+    get:
+      operationId: listAuthors
+      summary: List and search authors
+      description: >-
+        Returns a paginated list of authors in the catalog. Supports case-insensitive
+        partial name matching via the `name` query parameter (e.g., `?name=herber`
+        matches "Frank Herbert").
+
+        Omitting `name` returns all authors sorted by `name` ascending.
+        Returns 200 with an empty `data` array if no authors match.
+      tags:
+        - authors
+      parameters:
+        - $ref: '#/components/parameters/offsetParam'
+        - $ref: '#/components/parameters/limitParam'
+        - name: name
+          in: query
+          description: >-
+            Case-insensitive partial string match on author name. Matches any author
+            whose name contains this string as a substring. Example: `?name=frank`
+            matches "Frank Herbert" and "Anne Frank".
+          required: false
+          schema:
+            type: string
+            example: "Herbert"
+      responses:
+        '200':
+          description: A paginated list of authors.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorCollection'
+              examples:
+                default:
+                  value:
+                    data:
+                      - id: 01938a7c-5678-7abc-8def-0123456789cd
+                        name: Frank Herbert
+                        biography: American science fiction author best known for the Dune series.
+                        photoUrl: "https://images.example.com/authors/frank-herbert.jpg"
+                        websiteUrl: "https://www.dunenovels.com"
+                        createdAt: "2024-01-01T00:00:00Z"
+                        updatedAt: "2024-06-01T00:00:00Z"
+                    meta:
+                      totalCount: 1
+                      limit: 50
+                      offset: 0
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /authors/{authorId}:
+    get:
+      operationId: getAuthor
+      summary: Get author profile
+      description: >-
+        Returns the full profile for a single author, including biography, photo, and
+        website link where available. Optional fields (`biography`, `photoUrl`,
+        `websiteUrl`) are null when not provided.
+
+        Use `GET /authors/{authorId}/books` to list the books this author has written.
+        Returns 404 if no author with the given ID exists.
+      tags:
+        - authors
+      parameters:
+        - $ref: '#/components/parameters/authorIdParam'
+      responses:
+        '200':
+          description: The requested author profile.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Author'
+              examples:
+                default:
+                  value:
+                    id: 01938a7c-5678-7abc-8def-0123456789cd
+                    name: Frank Herbert
+                    biography: American science fiction author best known for the Dune series.
+                    photoUrl: "https://images.example.com/authors/frank-herbert.jpg"
+                    websiteUrl: "https://www.dunenovels.com"
+                    createdAt: "2024-01-01T00:00:00Z"
+                    updatedAt: "2024-06-01T00:00:00Z"
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /authors/{authorId}/books:
+    get:
+      operationId: listBooksByAuthor
+      summary: List books by an author
+      description: >-
+        Returns a paginated list of all books in the catalog written by the specified
+        author, sorted by `publishedAt` descending (most recent first).
+
+        Returns 404 if the author does not exist. Returns 200 with an empty `data`
+        array if the author exists but has no books in the catalog.
+      tags:
+        - authors
+      parameters:
+        - $ref: '#/components/parameters/authorIdParam'
+        - $ref: '#/components/parameters/offsetParam'
+        - $ref: '#/components/parameters/limitParam'
+      responses:
+        '200':
+          description: A paginated list of books by the specified author.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookCollection'
+              examples:
+                default:
+                  value:
+                    data:
+                      - id: 01938a7c-1234-7abc-8def-0123456789ab
+                        title: Dune
+                        description: Set in the distant future.
+                        genre: fiction
+                        publishedAt: "1965-08-01"
+                        pageCount: 412
+                        averageRating: 4.7
+                        price:
+                          amount: "19.99"
+                          currency: USD
+                        coverImageUrl: "https://images.example.com/books/01938a7c-1234.jpg"
+                        authorId: 01938a7c-5678-7abc-8def-0123456789cd
+                        createdAt: "2024-01-15T09:00:00Z"
+                        updatedAt: "2024-06-20T14:30:00Z"
+                    meta:
+                      totalCount: 6
+                      limit: 50
+                      offset: 0
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # =======================================================================
+  # Reading Lists (authenticated)
+  # =======================================================================
+
+  /reading-lists/me:
+    get:
+      operationId: getMyReadingList
+      summary: Get my reading list
+      description: >-
+        Returns the authenticated user's personal reading list as a paginated collection
+        of `ReadingListEntry` objects. Optionally filter by `status` to retrieve only
+        entries in a specific reading state.
+
+        Each entry contains a `bookId` reference — use `GET /books/{bookId}` to retrieve
+        the full book details. Requires a valid Bearer JWT in the Authorization header.
+        Returns 401 if the token is missing or invalid.
+      tags:
+        - reading-lists
+      security:
+        - bearerAuth: []
+      x-mcp-tool-name: get_my_reading_list
+      x-agent-hint: "Safe, read-only. Returns the authenticated user's list only. Use this to check for a book before calling add_to_reading_list."
+      parameters:
+        - $ref: '#/components/parameters/offsetParam'
+        - $ref: '#/components/parameters/limitParam'
+        - name: status
+          in: query
+          description: >-
+            Filter entries by reading status. Returns only entries matching this status.
+            Omit to return all entries regardless of status.
+          required: false
+          schema:
+            $ref: '#/components/schemas/ReadingStatus'
+      responses:
+        '200':
+          description: A paginated list of the user's reading list entries.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadingListCollection'
+              examples:
+                default:
+                  value:
+                    data:
+                      - bookId: 01938a7c-1234-7abc-8def-0123456789ab
+                        status: reading
+                        addedAt: "2025-03-01T10:00:00Z"
+                        updatedAt: "2025-03-15T11:00:00Z"
+                    meta:
+                      totalCount: 14
+                      limit: 50
+                      offset: 0
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /reading-lists/me/entries:
+    post:
+      operationId: addToReadingList
+      summary: Add a book to my reading list
+      description: >-
+        Adds a book to the authenticated user's reading list with an initial status.
+        The book must exist in the catalog — a 404 is returned if it does not.
+
+        If the book is already on the reading list, a 409 Conflict is returned.
+        To update the status of an existing entry, use `PUT /reading-lists/me/entries/{bookId}`.
+
+        On success, returns 201 with the new entry and a `Location` header pointing to
+        `PUT /reading-lists/me/entries/{bookId}`.
+      tags:
+        - reading-lists
+      security:
+        - bearerAuth: []
+      x-mcp-tool-name: add_to_reading_list
+      x-agent-hint: "Write operation. Returns 409 if the book is already on the list. Call get_my_reading_list first to avoid unnecessary errors."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReadingListEntryRequest'
+            examples:
+              default:
+                value:
+                  bookId: 01938a7c-1234-7abc-8def-0123456789ab
+                  status: want-to-read
+      responses:
+        '201':
+          description: The book was successfully added to the reading list.
+          headers:
+            Location:
+              description: URL of the created entry for subsequent updates or deletion.
+              schema:
+                type: string
+                format: uri
+                example: "https://api.example.com/reading-lists/me/entries/01938a7c-1234-7abc-8def-0123456789ab"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadingListEntry'
+              examples:
+                default:
+                  value:
+                    bookId: 01938a7c-1234-7abc-8def-0123456789ab
+                    status: want-to-read
+                    addedAt: "2025-08-21T09:15:00Z"
+                    updatedAt: "2025-08-21T09:15:00Z"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /reading-lists/me/entries/{bookId}:
+    put:
+      operationId: updateReadingListEntry
+      summary: Update reading list entry status
+      description: >-
+        Updates the `status` of an existing reading list entry for the authenticated user.
+        This is a full replacement of the entry — only the `status` field can be updated.
+
+        Returns 404 if the book is not on the user's reading list. To add a new book,
+        use `POST /reading-lists/me/entries`.
+      tags:
+        - reading-lists
+      security:
+        - bearerAuth: []
+      x-mcp-tool-name: update_reading_list_entry
+      x-agent-hint: "Write, idempotent. Updates status only. The book must already be on the list — 404 if not."
+      parameters:
+        - $ref: '#/components/parameters/bookIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReadingListEntryRequest'
+            examples:
+              markAsReading:
+                summary: Start reading a book
+                value:
+                  bookId: 01938a7c-1234-7abc-8def-0123456789ab
+                  status: reading
+              markAsFinished:
+                summary: Mark a book as finished
+                value:
+                  bookId: 01938a7c-1234-7abc-8def-0123456789ab
+                  status: finished
+      responses:
+        '200':
+          description: The updated reading list entry.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadingListEntry'
+              examples:
+                default:
+                  value:
+                    bookId: 01938a7c-1234-7abc-8def-0123456789ab
+                    status: reading
+                    addedAt: "2025-03-01T10:00:00Z"
+                    updatedAt: "2025-08-21T14:00:00Z"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    delete:
+      operationId: removeFromReadingList
+      summary: Remove a book from my reading list
+      description: >-
+        Permanently removes the specified book from the authenticated user's reading list.
+        This action only removes the reading list entry — the book record in the catalog
+        is not affected.
+
+        Returns 204 on success with no response body. Returns 404 if the book is not
+        currently on the user's reading list. This operation is idempotent with respect
+        to the underlying data but returns 404 (not 204) for non-existent entries, so
+        callers must handle 404 gracefully when retrying.
+      tags:
+        - reading-lists
+      security:
+        - bearerAuth: []
+      x-mcp-tool-name: remove_from_reading_list
+      x-agent-hint: "Destructive and irreversible. Permanently removes the entry. Require explicit user confirmation before calling."
+      parameters:
+        - $ref: '#/components/parameters/bookIdParam'
+      responses:
+        '204':
+          description: The reading list entry was successfully removed. No response body.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'

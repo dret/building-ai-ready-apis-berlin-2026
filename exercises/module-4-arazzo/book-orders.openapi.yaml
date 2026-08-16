@@ -1,0 +1,590 @@
+openapi: 3.1.2
+info:
+  title: Book Orders API
+  version: 1.0.0
+  description: >-
+    The Book Orders API handles the purchasing workflow for the Book Platform.
+    It allows authenticated users to place orders for books discovered through the
+    Book Catalog API, track order status, and complete payment.
+
+    This API is designed to be composed with the Book Catalog API in multi-step
+    workflows. Order items reference books by their catalog `bookId`.
+  contact:
+    name: API Platform Team
+    url: https://developer.example.com/support
+    email: api-support@example.com
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+
+servers:
+  - url: https://orders.example.com
+    description: Production
+
+tags:
+  - name: orders
+    description: Create and track book purchase orders.
+  - name: payments
+    description: Process payments for confirmed orders.
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: >-
+        Bearer JWT token issued by the Book Platform authentication service.
+        All order and payment endpoints require authentication.
+
+  parameters:
+    orderIdParam:
+      name: orderId
+      in: path
+      required: true
+      description: Unique identifier (UUID v7) of the order.
+      schema:
+        type: string
+        format: uuid
+        example: 01938c00-aaaa-7abc-8def-000000000010
+
+  schemas:
+
+    OrderStatus:
+      type: string
+      description: >-
+        Current lifecycle status of an order. `pending` means the order has been
+        created but payment has not been initiated. `awaiting-payment` means payment
+        has been initiated but not confirmed. `confirmed` means payment was successful
+        and the order is being fulfilled. `cancelled` means the order was cancelled
+        before confirmation.
+      enum:
+        - pending
+        - awaiting-payment
+        - confirmed
+        - cancelled
+      example: pending
+
+    PaymentMethod:
+      type: string
+      description: >-
+        The payment instrument to use. `card` charges a saved payment card.
+        `wallet` uses the user's platform wallet balance.
+      enum:
+        - card
+        - wallet
+      example: card
+
+    PaymentStatus:
+      type: string
+      description: >-
+        Result of a payment attempt. `succeeded` means payment was collected and
+        the order is now `confirmed`. `failed` means payment was declined — the order
+        remains in `awaiting-payment` and the caller may retry. `pending` means the
+        payment is being processed asynchronously.
+      enum:
+        - succeeded
+        - failed
+        - pending
+      example: succeeded
+
+    Money:
+      type: object
+      description: >-
+        A monetary amount as a decimal string paired with an ISO 4217 currency code.
+        Use a decimal library for arithmetic — never floating point.
+      required:
+        - amount
+        - currency
+      properties:
+        amount:
+          type: string
+          description: Decimal string representation of the amount.
+          pattern: '^\d+(\.\d{1,2})?$'
+          example: "29.98"
+        currency:
+          type: string
+          description: ISO 4217 three-letter currency code.
+          minLength: 3
+          maxLength: 3
+          example: USD
+      example:
+        amount: "29.98"
+        currency: USD
+
+    OrderItem:
+      type: object
+      description: >-
+        A single book item within an order, referencing the book's catalog ID and
+        recording the price at the time of order placement.
+      required:
+        - bookId
+        - quantity
+        - unitPrice
+      properties:
+        bookId:
+          type: string
+          format: uuid
+          description: >-
+            Unique identifier of the book from the Book Catalog API. Use
+            `GET /books/{bookId}` on the Catalog API to retrieve full book details.
+          example: 01938a7c-1234-7abc-8def-0123456789ab
+        quantity:
+          type: integer
+          description: Number of copies ordered. Must be at least 1.
+          minimum: 1
+          example: 1
+        unitPrice:
+          $ref: '#/components/schemas/Money'
+      example:
+        bookId: 01938a7c-1234-7abc-8def-0123456789ab
+        quantity: 1
+        unitPrice:
+          amount: "19.99"
+          currency: USD
+
+    Order:
+      type: object
+      description: >-
+        A purchase order containing one or more books. Created via `POST /orders`.
+        The order progresses through statuses: `pending` → `awaiting-payment` →
+        `confirmed` (or `cancelled`). Use `GET /orders/{orderId}/payment` to initiate
+        payment once an order is in `pending` status.
+      required:
+        - id
+        - status
+        - items
+        - subtotal
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the order.
+          readOnly: true
+          example: 01938c00-aaaa-7abc-8def-000000000010
+        status:
+          $ref: '#/components/schemas/OrderStatus'
+        items:
+          type: array
+          description: The books included in this order.
+          items:
+            $ref: '#/components/schemas/OrderItem'
+        subtotal:
+          $ref: '#/components/schemas/Money'
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the order was created.
+          readOnly: true
+          example: "2025-08-21T09:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp of the most recent status change.
+          readOnly: true
+          example: "2025-08-21T09:05:00Z"
+      example:
+        id: 01938c00-aaaa-7abc-8def-000000000010
+        status: pending
+        items:
+          - bookId: 01938a7c-1234-7abc-8def-0123456789ab
+            quantity: 1
+            unitPrice:
+              amount: "19.99"
+              currency: USD
+        subtotal:
+          amount: "19.99"
+          currency: USD
+        createdAt: "2025-08-21T09:00:00Z"
+        updatedAt: "2025-08-21T09:00:00Z"
+
+    OrderRequest:
+      type: object
+      description: >-
+        Request body for creating a new order. Provide one or more books with their
+        catalog IDs and the quantity required. Each book must exist in the catalog.
+      required:
+        - items
+      properties:
+        items:
+          type: array
+          description: >-
+            One or more books to include in the order. Each item must reference a valid
+            `bookId` from the Book Catalog API. At least one item is required.
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/OrderItemRequest'
+      example:
+        items:
+          - bookId: 01938a7c-1234-7abc-8def-0123456789ab
+            quantity: 1
+
+    OrderItemRequest:
+      type: object
+      description: A book and quantity to include in an order.
+      required:
+        - bookId
+        - quantity
+      properties:
+        bookId:
+          type: string
+          format: uuid
+          description: >-
+            Unique identifier of the book from the Book Catalog API. The book must
+            exist and be available from at least one retailer.
+          example: 01938a7c-1234-7abc-8def-0123456789ab
+        quantity:
+          type: integer
+          description: Number of copies to order. Must be at least 1.
+          minimum: 1
+          example: 1
+      example:
+        bookId: 01938a7c-1234-7abc-8def-0123456789ab
+        quantity: 1
+
+    PaymentRequest:
+      type: object
+      description: >-
+        Request body for initiating payment on an order. The order must be in `pending`
+        status. On success, the order transitions to `awaiting-payment` then `confirmed`
+        once the payment provider confirms the transaction.
+      required:
+        - paymentMethod
+      properties:
+        paymentMethod:
+          $ref: '#/components/schemas/PaymentMethod'
+      example:
+        paymentMethod: card
+
+    PaymentResult:
+      type: object
+      description: >-
+        The result of a payment attempt. Check `status` to determine the outcome.
+        `succeeded` means the order is now confirmed. `failed` means payment was declined
+        and the caller may retry with a different payment method.
+      required:
+        - orderId
+        - status
+        - processedAt
+      properties:
+        orderId:
+          type: string
+          format: uuid
+          description: The order this payment was applied to.
+          example: 01938c00-aaaa-7abc-8def-000000000010
+        status:
+          $ref: '#/components/schemas/PaymentStatus'
+        processedAt:
+          type: string
+          format: date-time
+          description: Timestamp when payment processing completed.
+          readOnly: true
+          example: "2025-08-21T09:05:00Z"
+        failureReason:
+          type: ["string", "null"]
+          description: >-
+            Human-readable reason for a failed payment. Present when `status` is
+            `failed`, null otherwise.
+          example: null
+      example:
+        orderId: 01938c00-aaaa-7abc-8def-000000000010
+        status: succeeded
+        processedAt: "2025-08-21T09:05:00Z"
+        failureReason: null
+
+    ProblemDetails:
+      type: object
+      description: RFC 9457 Problem Details error response.
+      required:
+        - type
+        - title
+        - status
+      properties:
+        type:
+          type: string
+          format: uri
+          description: URI identifying the error class. Machine-readable identifier.
+          example: "https://orders.example.com/problems/not-found"
+        title:
+          type: string
+          description: Short, stable summary of the error class.
+          example: "Not found"
+        status:
+          type: integer
+          description: HTTP status code.
+          example: 404
+        detail:
+          type: string
+          description: Specific explanation for this occurrence.
+          example: "No order with the given ID was found."
+        instance:
+          type: string
+          description: URI reference identifying this specific occurrence.
+          example: "/orders/01938c00-aaaa-7abc-8def-000000000010"
+        errors:
+          type: array
+          description: Field-level validation errors, present on 400 responses.
+          items:
+            type: object
+            required:
+              - name
+              - reason
+            properties:
+              name:
+                type: string
+                example: "items"
+              reason:
+                type: string
+                example: "must contain at least 1 item"
+
+  responses:
+    BadRequest:
+      description: The request was malformed or contained invalid parameters.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+
+    Unauthorized:
+      description: Authentication credentials are missing or invalid.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+
+    NotFound:
+      description: The requested resource does not exist.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+
+    Conflict:
+      description: The operation conflicts with the resource's current state.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+
+    InternalServerError:
+      description: An unexpected error occurred on the server.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+
+paths:
+
+  /orders:
+    post:
+      operationId: createOrder
+      summary: Place a new book order
+      description: >-
+        Creates a new purchase order for one or more books. Each item in the request
+        must reference a valid `bookId` from the Book Catalog API.
+
+        The order is created in `pending` status. To complete the purchase, call
+        `POST /orders/{orderId}/payment` with a valid payment method. The price for
+        each item is calculated at order creation time from the current catalog price.
+
+        Returns 201 with the created order and a `Location` header pointing to
+        `GET /orders/{orderId}`. Returns 400 if any `bookId` is invalid or if the
+        items array is empty.
+      tags:
+        - orders
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderRequest'
+            examples:
+              singleBook:
+                summary: Order a single book
+                value:
+                  items:
+                    - bookId: 01938a7c-1234-7abc-8def-0123456789ab
+                      quantity: 1
+              multipleBooks:
+                summary: Order multiple books
+                value:
+                  items:
+                    - bookId: 01938a7c-1234-7abc-8def-0123456789ab
+                      quantity: 1
+                    - bookId: 01938a7c-abcd-7abc-8def-0123456789ab
+                      quantity: 2
+      responses:
+        '201':
+          description: Order created successfully. Proceed to payment.
+          headers:
+            Location:
+              description: URL to retrieve or update this order.
+              schema:
+                type: string
+                format: uri
+                example: "/orders/01938c00-aaaa-7abc-8def-000000000010"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+              examples:
+                default:
+                  value:
+                    id: 01938c00-aaaa-7abc-8def-000000000010
+                    status: pending
+                    items:
+                      - bookId: 01938a7c-1234-7abc-8def-0123456789ab
+                        quantity: 1
+                        unitPrice:
+                          amount: "19.99"
+                          currency: USD
+                    subtotal:
+                      amount: "19.99"
+                      currency: USD
+                    createdAt: "2025-08-21T09:00:00Z"
+                    updatedAt: "2025-08-21T09:00:00Z"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /orders/{orderId}:
+    get:
+      operationId: getOrder
+      summary: Get order status
+      description: >-
+        Returns the current state of an order, including status, items, and subtotal.
+        Use this to poll order status after initiating payment, or to confirm an order
+        is in the expected state before the next workflow step.
+
+        Returns 404 if no order with the given ID exists or the order belongs to a
+        different user.
+      tags:
+        - orders
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/orderIdParam'
+      responses:
+        '200':
+          description: The current state of the order.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+              examples:
+                pending:
+                  summary: Order awaiting payment
+                  value:
+                    id: 01938c00-aaaa-7abc-8def-000000000010
+                    status: pending
+                    items:
+                      - bookId: 01938a7c-1234-7abc-8def-0123456789ab
+                        quantity: 1
+                        unitPrice:
+                          amount: "19.99"
+                          currency: USD
+                    subtotal:
+                      amount: "19.99"
+                      currency: USD
+                    createdAt: "2025-08-21T09:00:00Z"
+                    updatedAt: "2025-08-21T09:00:00Z"
+                confirmed:
+                  summary: Order confirmed after payment
+                  value:
+                    id: 01938c00-aaaa-7abc-8def-000000000010
+                    status: confirmed
+                    items:
+                      - bookId: 01938a7c-1234-7abc-8def-0123456789ab
+                        quantity: 1
+                        unitPrice:
+                          amount: "19.99"
+                          currency: USD
+                    subtotal:
+                      amount: "19.99"
+                      currency: USD
+                    createdAt: "2025-08-21T09:00:00Z"
+                    updatedAt: "2025-08-21T09:05:00Z"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /orders/{orderId}/payment:
+    post:
+      operationId: processPayment
+      summary: Process payment for an order
+      description: >-
+        Initiates payment for an order that is in `pending` status. The order must
+        exist and belong to the authenticated user.
+
+        On success (`status: succeeded`), the order transitions to `confirmed` and the
+        workflow is complete. On failure (`status: failed`), the order remains in
+        `awaiting-payment` status and the caller may retry with a different payment method.
+
+        Returns 409 if the order is not in `pending` status (e.g., already confirmed or
+        cancelled). Returns 404 if the order does not exist.
+
+        After a successful payment, call `GET /orders/{orderId}` to retrieve the final
+        confirmed order record.
+      tags:
+        - payments
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/orderIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentRequest'
+            examples:
+              card:
+                summary: Pay by card
+                value:
+                  paymentMethod: card
+              wallet:
+                summary: Pay by wallet
+                value:
+                  paymentMethod: wallet
+      responses:
+        '200':
+          description: Payment processed. Check `status` for the result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentResult'
+              examples:
+                succeeded:
+                  summary: Payment succeeded
+                  value:
+                    orderId: 01938c00-aaaa-7abc-8def-000000000010
+                    status: succeeded
+                    processedAt: "2025-08-21T09:05:00Z"
+                    failureReason: null
+                failed:
+                  summary: Payment declined
+                  value:
+                    orderId: 01938c00-aaaa-7abc-8def-000000000010
+                    status: failed
+                    processedAt: "2025-08-21T09:05:00Z"
+                    failureReason: "Card declined. Insufficient funds."
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
