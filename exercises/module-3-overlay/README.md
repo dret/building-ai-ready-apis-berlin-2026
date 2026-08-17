@@ -34,6 +34,9 @@ Apply it now to see the result before writing your own:
 # Install (once)
 npm install -g @speclynx/cli
 
+# Run all CLI commands from this directory
+cd exercises/module-3-overlay
+
 # Apply the overlay
 speclynx overlay apply audience-targeting.overlay.yaml book-catalog-with-internal.openapi.yaml \
   --output book-catalog-governed.openapi.yaml

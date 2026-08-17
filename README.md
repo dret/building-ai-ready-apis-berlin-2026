@@ -23,8 +23,8 @@ Materials for the "Building AI-Ready APIs with Agent Skills" Masterclass
 | 13:00–13:55 | Module 4: Modeling API Workflows with Arazzo | Frank |
 | 13:55–14:10 | Break | — |
 | 14:10–15:45 | Module 5: Designing AI-Ready API Ecosystems | Frank |
-| 15:45–16:15 | Wrap-up and Key Takeaways | Both |
-| 16:15–17:00 | Q&A / Open Discussion | Both |
+| 15:45–16:15 | From API Specification to Implementation| Erik |
+| 16:15–17:00 | Wrap-up / Takeaways / Q&A / Open Discussion | Both |
 
 Full timing detail: [`SCHEDULE.md`](./SCHEDULE.md)
 
@@ -34,7 +34,7 @@ Full timing detail: [`SCHEDULE.md`](./SCHEDULE.md)
 
 - [Welcome, Introduction, and Logistics](http://dret.net/lectures/api-days-india-2026/masterclass-intro)
 - [Module 1: Understanding AI-Driven API Usage](http://dret.net/lectures/api-days-india-2026/ai-api-usage)
-- Agent Skills: Introduction *(TODO presentation — 25 min)*
+- Agent Skills: Introduction *(presentation — 25 min)*
 - [Module 2: Designing Governed API Specifications with OpenAPI](http://dret.net/lectures/api-days-india-2026/openapi)
 - [Module 3: Applying Governance with OpenAPI Overlay](http://dret.net/lectures/api-days-india-2026/overlay)
 - [Module 4: Modeling API Workflows with Arazzo](http://dret.net/lectures/api-days-india-2026/arazzo)

@@ -1,7 +1,7 @@
 # Module 2: Designing Governed API Specifications with OpenAPI
 
 **Duration:** ~45 minutes  
-**Owner:** Erik Wilde  
+**Owner:** Erik Wilde  / Frank
 
 ## Objective
 
@@ -58,16 +58,17 @@ Check that your spec is structurally valid before linting.
 **Option 1: Swagger Editor (browser)**
 1. Go to [editor.swagger.io](https://editor.swagger.io)
 2. Paste your YAML
-3. Fix validation errors shown on the right panel
+3. Fix validation errors shown on the right panel (or at the bottom)
 
-**Option 2: VS Code with Redocly extension**
+**Option 2: Scalar Editor (browser)**
+1. Go to [editor.scalar.com](https://editor.scalar.com/)
+2. Paste your YAML
+3. Fix validation errors shown in the diagnostics panel
+
+**Option 3: VS Code with Redocly extension**
 1. Install the **Redocly OpenAPI** extension from the VS Code marketplace
 2. Open your YAML file — errors appear inline in the editor
 
-**Option 3: CLI**
-```bash
-npx @stoplight/spectral-cli lint book-catalog.openapi.yaml
-```
 
 Common issues to watch for:
 - Missing `$ref` targets (schema referenced but not defined in components)
@@ -86,6 +87,9 @@ npm install -g @stoplight/spectral-cli
 ```
 
 ### Run the linter
+
+> Note: if you did part B in Scalar, then you can copy the contents of `.spectral.yaml` into the Diagnostics tab
+
 ```bash
 spectral lint book-catalog.openapi.yaml --ruleset .spectral.yaml
 ```
@@ -96,6 +100,7 @@ There are two rulesets in this module:
 ```bash
 spectral lint book-catalog.openapi.yaml --ruleset .spectral.yaml
 ```
+> Note: if you did part B in Scalar, then you can copy the contents of `custom-ruleset.spectral.yaml` into the Diagnostics tab
 
 **`custom-ruleset.spectral.yaml`** — extends the minimal ruleset with governance rules:
 ```bash
@@ -121,10 +126,8 @@ Warnings are important for AI-readiness but errors are blockers. Aim to clear er
 
 ### Optional: Quick pre-score
 If you want to see your AI-readiness score before the Module 5 deep-dive:
-```bash
-jentic-api-scorecard score book-catalog.openapi.yaml
-```
-Or use the `jentic-api-scorecard` Claude Code skill.
+
+Head to [https://jentic.com/scorecard](https://jentic.com/scorecard), and drop in your OpenAPI YAML file.
 
 ---
 

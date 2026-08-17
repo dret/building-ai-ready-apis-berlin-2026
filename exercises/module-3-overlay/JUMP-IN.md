@@ -27,6 +27,7 @@ A working overlay is already provided. Apply it to see Overlay in action before 
 
 **CLI:**
 ```bash
+cd exercises/module-3-overlay
 speclynx overlay apply audience-targeting.overlay.yaml book-catalog-with-internal.openapi.yaml \
   --output book-catalog-governed.openapi.yaml
 ```
