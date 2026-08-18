@@ -20,7 +20,7 @@
 | 13:30 | [Module 4: Arazzo Workflows](http://dret.net/lectures/api-days-india-2026/arazzo) | Frank | Exercise |
 | 14:25 | Break | — | — |
 | 14:40 | [Module 5: AI-Ready Ecosystems](http://dret.net/lectures/api-days-india-2026/api-ecosystems) | Frank | Exercise |
-| 16:15–16:45 | [From API Specification to Implementation](http://dret.net/lectures/api-days-india-2026/api-implementation)| Erik |
+| 16:15–16:45 | [Module 6: From API Specification to Implementation](http://dret.net/lectures/api-days-india-2026/api-implementation)| Erik | Exercise |
 | 16:45–17:30 | Wrap-up / Takeaways / Q&A / Open Discussion | Both |
 | 17:30 | End | — | — |
 
@@ -53,7 +53,7 @@
   - What surprised people most?
   - Which issues are hardest to fix retroactively?
 
-*Jump-in: `exercises/module-1-ai-usage/JUMP-IN.md`*
+*Jump-in: [`exercises/module-1-ai-usage/JUMP-IN.md`](./exercises/module-1-ai-usage/JUMP-IN.md)*
 
 
 ### 10:35 — Agent Skills Introduction (25 min)
@@ -85,7 +85,7 @@ Shared mental model before agent skills start appearing in exercises:
   - Part B: Validate in Swagger Editor (5 min)
   - Part C: Lint with Spectral and fix issues (10 min)
 
-*Jump-in: `exercises/module-2-openapi-design/JUMP-IN.md`*
+*Jump-in: [`exercises/module-2-openapi-design/JUMP-IN.md`](./exercises/module-2-openapi-design/JUMP-IN.md)*
 
 
 ### 11:40 — Break (15 min)
@@ -107,7 +107,7 @@ Shared mental model before agent skills start appearing in exercises:
   - Bonus: Add `x-mcp-tool-name` and `x-agent-hint` to reading list operations
 - **Validation:** Run result through Spectral (5 min)
 
-*Jump-in: `exercises/module-3-overlay/JUMP-IN.md`*
+*Jump-in: [`exercises/module-3-overlay/JUMP-IN.md`](./exercises/module-3-overlay/JUMP-IN.md)*
 
 ### 12:40 — Lunch (60 min)
 
@@ -129,7 +129,7 @@ Shared mental model before agent skills start appearing in exercises:
   - Why `processPayment` needs a body check, not just a status check
   - How failure actions prevent runaway workflows
 
-*Jump-in: `exercises/module-4-arazzo/JUMP-IN.md`*
+*Jump-in: [`exercises/module-4-arazzo/JUMP-IN.md`](./exercises/module-4-arazzo/JUMP-IN.md)*
 
 
 ### 14:25 — Break (15 min)
@@ -154,7 +154,7 @@ Shared mental model before agent skills start appearing in exercises:
   - Surprising scores, surprising gaps
   - The ROI story: 2 changes that have outsized impact
 
-*Jump-in: `exercises/module-5-ai-readiness/JUMP-IN.md`*
+*Jump-in: [`exercises/module-5-ai-readiness/JUMP-IN.md`](./exercises/module-5-ai-readiness/JUMP-IN.md)*
 
 
 ### 16:15 — From API Specification to Implementation (30 min)
@@ -199,4 +199,4 @@ Shared mental model before agent skills start appearing in exercises:
 
 Participants arriving late or needing to restart can join at any module boundary.
 Each module's `JUMP-IN.md` provides 2-minute context and the exact starting files.
-See `JUMP-IN-GUIDE.md` for the master jump-in reference.
+See [`JUMP-IN-GUIDE.md`](./JUMP-IN-GUIDE.md) for the master jump-in reference.
