@@ -10,17 +10,17 @@
 
 | Time | Module | Owner | Type |
 |------|--------|-------|------|
-| 09:30 | Opening & Welcome | Both | Presentation |
-| 10:00 | Module 1: Understanding AI-Driven API Usage | Erik | Exercise |
+| 09:30 | [Opening & Welcome](http://dret.net/lectures/api-days-india-2026/masterclass-intro) | Both | Presentation |
+| 10:00 | [Module 1: Understanding AI-Driven API Usage](http://dret.net/lectures/api-days-india-2026/ai-api-usage) | Erik | Exercise |
 | 10:35 | Agent Skills — Introduction | Both | Presentation |
-| 11:00 | Module 2: Designing with OpenAPI | Erik | Exercise |
+| 11:00 | [Module 2: Designing with OpenAPI](http://dret.net/lectures/api-days-india-2026/openapi) | Erik | Exercise |
 | 11:40 | Break | — | — |
-| 11:55 | Module 3: Overlay Governance | Frank | Exercise |
+| 11:55 | [Module 3: Overlay Governance](http://dret.net/lectures/api-days-india-2026/overlay) | Frank | Exercise |
 | 12:40 | Lunch | — | — |
-| 13:30 | Module 4: Arazzo Workflows | Frank | Exercise |
+| 13:30 | [Module 4: Arazzo Workflows](http://dret.net/lectures/api-days-india-2026/arazzo) | Frank | Exercise |
 | 14:25 | Break | — | — |
-| 14:40 | Module 5: AI-Ready Ecosystems | Frank | Exercise |
-| 16:15–16:45 | From API Specification to Implementation| Erik |
+| 14:40 | [Module 5: AI-Ready Ecosystems](http://dret.net/lectures/api-days-india-2026/api-ecosystems) | Frank | Exercise |
+| 16:15–16:45 | [From API Specification to Implementation](http://dret.net/lectures/api-days-india-2026/api-implementation)| Erik |
 | 16:45–17:30 | Wrap-up / Takeaways / Q&A / Open Discussion | Both |
 | 17:30 | End | — | — |
 

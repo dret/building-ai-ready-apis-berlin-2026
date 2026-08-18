@@ -13,17 +13,17 @@ Materials for the "Building AI-Ready APIs with Agent Skills" Masterclass
 
 | Time | Session | Owner |
 |------|---------|-------|
-| 09:30–10:00 | Opening, Welcome, and Why AI Changes API Design | Both |
-| 10:00–10:35 | Module 1: Understanding AI-Driven API Usage | Erik |
+| 09:30–10:00 | [Opening, Welcome, and Why AI Changes API Design](http://dret.net/lectures/api-days-india-2026/masterclass-intro) | Both |
+| 10:00–10:35 | [Module 1: Understanding AI-Driven API Usage](http://dret.net/lectures/api-days-india-2026/ai-api-usage) | Erik |
 | 10:35–11:00 | Agent Skills: Introduction | Both |
-| 11:00–11:40 | Module 2: Designing Governed API Specifications with OpenAPI | Erik |
+| 11:00–11:40 | [Module 2: Designing Governed API Specifications with OpenAPI](http://dret.net/lectures/api-days-india-2026/openapi) | Erik |
 | 11:40–11:55 | Break | — |
-| 11:55–12:40 | Module 3: Applying Governance with OpenAPI Overlay | Frank |
+| 11:55–12:40 | [Module 3: Applying Governance with OpenAPI Overlay](http://dret.net/lectures/api-days-india-2026/overlay) | Frank |
 | 12:40–13:30 | Lunch | — |
-| 13:30–14:25 | Module 4: Modeling API Workflows with Arazzo | Frank |
+| 13:30–14:25 | [Module 4: Modeling API Workflows with Arazzo](http://dret.net/lectures/api-days-india-2026/arazzo) | Frank |
 | 14:25–14:40 | Break | — |
-| 14:40–16:15 | Module 5: Designing AI-Ready API Ecosystems | Frank |
-| 16:15–16:45 | From API Specification to Implementation| Erik |
+| 14:40–16:15 | [Module 5: Designing AI-Ready API Ecosystems](http://dret.net/lectures/api-days-india-2026/api-ecosystems) | Frank |
+| 16:15–16:45 | [From API Specification to Implementation](http://dret.net/lectures/api-days-india-2026/api-implementation)| Erik |
 | 16:45–17:30 | Wrap-up / Takeaways / Q&A / Open Discussion | Both |
 
 Full timing detail: [`SCHEDULE.md`](./SCHEDULE.md)
