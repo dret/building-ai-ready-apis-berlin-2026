@@ -10,24 +10,24 @@
 
 | Time | Module | Owner | Type |
 |------|--------|-------|------|
-| 09:00 | Opening & Welcome | Both | Presentation |
-| 09:30 | Module 1: Understanding AI-Driven API Usage | Erik | Exercise |
-| 10:05 | Agent Skills — Introduction | Both | Presentation |
-| 10:30 | Module 2: Designing with OpenAPI | Erik | Exercise |
-| 11:10 | Break | — | — |
-| 11:25 | Module 3: Overlay Governance | Frank | Exercise |
-| 12:10 | Lunch | — | — |
-| 13:00 | Module 4: Arazzo Workflows | Frank | Exercise |
-| 13:55 | Break | — | — |
-| 14:10 | Module 5: AI-Ready Ecosystems | Frank | Exercise |
-| 15:45–16:15 | From API Specification to Implementation| Erik |
-| 16:15–17:00 | Wrap-up / Takeaways / Q&A / Open Discussion | Both |
-| 17:00 | End | — | — |
+| 09:30 | Opening & Welcome | Both | Presentation |
+| 10:00 | Module 1: Understanding AI-Driven API Usage | Erik | Exercise |
+| 10:35 | Agent Skills — Introduction | Both | Presentation |
+| 11:00 | Module 2: Designing with OpenAPI | Erik | Exercise |
+| 11:40 | Break | — | — |
+| 11:55 | Module 3: Overlay Governance | Frank | Exercise |
+| 12:40 | Lunch | — | — |
+| 13:30 | Module 4: Arazzo Workflows | Frank | Exercise |
+| 14:25 | Break | — | — |
+| 14:40 | Module 5: AI-Ready Ecosystems | Frank | Exercise |
+| 16:15–16:45 | From API Specification to Implementation| Erik |
+| 16:45–17:30 | Wrap-up / Takeaways / Q&A / Open Discussion | Both |
+| 17:30 | End | — | — |
 
 
 ## Detailed Schedule
 
-### 09:00 — Opening & Welcome (30 min)
+### 09:30 — Opening & Welcome (30 min)
 
 - Welcome and introductions (5 min)
 - Workshop goals and structure (5 min)
@@ -38,7 +38,7 @@
 - Quick logistics: tools, repo, jump-in option (5 min)
 
 
-### 09:30 — Module 1: Understanding AI-Driven API Usage (35 min)
+### 10:00 — Module 1: Understanding AI-Driven API Usage (35 min)
 
 **Owner:** Erik  
 **Format:** Presentation + Exercise
@@ -56,7 +56,7 @@
 *Jump-in: `exercises/module-1-ai-usage/JUMP-IN.md`*
 
 
-### 10:05 — Agent Skills Introduction (25 min)
+### 10:35 — Agent Skills Introduction (25 min)
 
 **Owner:** Both  
 **Format:** Presentation + live demo
@@ -72,7 +72,7 @@ Shared mental model before agent skills start appearing in exercises:
 - Today's agenda — where you'll encounter each skill (2 min)
 
 
-### 10:30 — Module 2: Designing Governed API Specifications (40 min)
+### 11:00 — Module 2: Designing Governed API Specifications (40 min)
 
 **Owner:** Erik  
 **Format:** Presentation + Exercise
@@ -88,10 +88,10 @@ Shared mental model before agent skills start appearing in exercises:
 *Jump-in: `exercises/module-2-openapi-design/JUMP-IN.md`*
 
 
-### 11:10 — Break (15 min)
+### 11:40 — Break (15 min)
 
 
-### 11:25 — Module 3: Applying Governance with OpenAPI Overlay (45 min)
+### 11:55 — Module 3: Applying Governance with OpenAPI Overlay (45 min)
 
 **Owner:** Frank  
 **Format:** Presentation + Exercise
@@ -109,10 +109,10 @@ Shared mental model before agent skills start appearing in exercises:
 
 *Jump-in: `exercises/module-3-overlay/JUMP-IN.md`*
 
-### 12:10 — Lunch (60 min)
+### 12:40 — Lunch (60 min)
 
 
-### 13:00 — Module 4: Modeling API Workflows with Arazzo (55 min)
+### 13:30 — Module 4: Modeling API Workflows with Arazzo (55 min)
 
 **Owner:** Frank  
 **Format:** Presentation + Exercise
@@ -132,11 +132,11 @@ Shared mental model before agent skills start appearing in exercises:
 *Jump-in: `exercises/module-4-arazzo/JUMP-IN.md`*
 
 
-### 13:55 — Break (15 min)
+### 14:25 — Break (15 min)
 
 
 
-### 14:10 — Module 5: Designing AI-Ready API Ecosystems (80 min)
+### 14:40 — Module 5: Designing AI-Ready API Ecosystems (80 min)
 
 **Owner:** Frank  
 **Format:** Presentation + Exercise
@@ -157,7 +157,7 @@ Shared mental model before agent skills start appearing in exercises:
 *Jump-in: `exercises/module-5-ai-readiness/JUMP-IN.md`*
 
 
-### 15:45 — From API Specification to Implementation (30 min)
+### 16:15 — From API Specification to Implementation (30 min)
 
 **Owner:** Erik  
 **Format:** Presentation
@@ -174,7 +174,7 @@ Shared mental model before agent skills start appearing in exercises:
   - The governance feedback loop: score → improve → re-score
 
 
-### 16:15 — Wrap-up / Takeaways / Q&A / Open Discussion (45 min)
+### 16:45 — Wrap-up / Takeaways / Q&A / Open Discussion (45 min)
 
 **Owner:** Both  
 **Format:** Presentation + open discussion

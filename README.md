@@ -13,18 +13,18 @@ Materials for the "Building AI-Ready APIs with Agent Skills" Masterclass
 
 | Time | Session | Owner |
 |------|---------|-------|
-| 09:00–09:30 | Opening, Welcome, and Why AI Changes API Design | Both |
-| 09:30–10:05 | Module 1: Understanding AI-Driven API Usage | Erik |
-| 10:05–10:30 | Agent Skills: Introduction | Both |
-| 10:30–11:10 | Module 2: Designing Governed API Specifications with OpenAPI | Erik |
-| 11:10–11:25 | Break | — |
-| 11:25–12:10 | Module 3: Applying Governance with OpenAPI Overlay | Frank |
-| 12:10–13:00 | Lunch | — |
-| 13:00–13:55 | Module 4: Modeling API Workflows with Arazzo | Frank |
-| 13:55–14:10 | Break | — |
-| 14:10–15:45 | Module 5: Designing AI-Ready API Ecosystems | Frank |
-| 15:45–16:15 | From API Specification to Implementation| Erik |
-| 16:15–17:00 | Wrap-up / Takeaways / Q&A / Open Discussion | Both |
+| 09:30–10:00 | Opening, Welcome, and Why AI Changes API Design | Both |
+| 10:00–10:35 | Module 1: Understanding AI-Driven API Usage | Erik |
+| 10:35–11:00 | Agent Skills: Introduction | Both |
+| 11:00–11:40 | Module 2: Designing Governed API Specifications with OpenAPI | Erik |
+| 11:40–11:55 | Break | — |
+| 11:55–12:40 | Module 3: Applying Governance with OpenAPI Overlay | Frank |
+| 12:40–13:30 | Lunch | — |
+| 13:30–14:25 | Module 4: Modeling API Workflows with Arazzo | Frank |
+| 14:25–14:40 | Break | — |
+| 14:40–16:15 | Module 5: Designing AI-Ready API Ecosystems | Frank |
+| 16:15–16:45 | From API Specification to Implementation| Erik |
+| 16:45–17:30 | Wrap-up / Takeaways / Q&A / Open Discussion | Both |
 
 Full timing detail: [`SCHEDULE.md`](./SCHEDULE.md)
 
