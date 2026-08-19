@@ -1,6 +1,6 @@
 # Module 3: Applying Governance with OpenAPI Overlay
 
-**Duration:** ~35 minutes  
+**Duration:** ~20 minutes  
 **Owner:** Frank Kilcommins  
 
 ## Objective

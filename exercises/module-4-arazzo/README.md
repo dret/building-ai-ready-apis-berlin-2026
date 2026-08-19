@@ -1,6 +1,6 @@
 # Module 4 — Arazzo Workflow Specification
 
-**Duration:** ~45 minutes  
+**Duration:** ~30 minutes  
 **Builds on:** Module 3 (the governed Book Catalog API spec)  
 **Jump in?** See [JUMP-IN.md](./JUMP-IN.md)
 
