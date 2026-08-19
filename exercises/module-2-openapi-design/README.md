@@ -1,6 +1,6 @@
 # Module 2: Designing Governed API Specifications with OpenAPI
 
-**Duration:** ~45 minutes  
+**Duration:** ~30 minutes  
 **Owner:** Erik Wilde  / Frank
 
 ## Objective
@@ -77,7 +77,7 @@ Common issues to watch for:
 
 ---
 
-## Part C — Lint (20 min)
+## Part C — Lint (10 min)
 
 Run Spectral with the workshop ruleset to check governance compliance.
 

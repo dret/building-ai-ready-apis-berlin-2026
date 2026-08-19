@@ -1,7 +1,7 @@
 # Module 5 — AI-Ready API Ecosystems
 
-**Duration:** ~45 minutes  
-**Builds on:** Module 4 (or use any OpenAPI spec you have)  
+**Duration:** ~30 minutes  
+**Builds on:** Module 4 (or use any OpenAPI description you have)  
 **Jump in?** See [JUMP-IN.md](./JUMP-IN.md)
 
 ---

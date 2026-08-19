@@ -1,6 +1,6 @@
 # Module 1: Understanding AI-Driven API Usage
 
-**Duration:** ~25 minutes  
+**Duration:** ~20 minutes  
 **Owner:** Erik Wilde  
 
 ## Objective
