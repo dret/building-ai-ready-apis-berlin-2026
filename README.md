@@ -15,7 +15,7 @@ Materials for the "Building AI-Ready APIs with Agent Skills" Masterclass
 |------|---------|-------|
 | 10:00–10:20 | [Opening, Welcome, and Why AI Changes API Design](http://dret.net/lectures/api-days-india-2026/masterclass-intro) | Both |
 | 10:20–11:00 | [Module 1: Understanding AI-Driven API Usage](http://dret.net/lectures/api-days-india-2026/ai-api-usage) | Erik |
-| 11:00–11:15 | Agent Skills: Introduction | Both |
+| 11:00–11:15 | [Agent Skills: Introduction](http://dret.net/lectures/api-days-india-2026/agent-skills) | Both |
 | 11:15–11:35 | Break | — |
 | 11:35–12:45 | [Module 2: Designing Governed API Specifications with OpenAPI](http://dret.net/lectures/api-days-india-2026/openapi) | Erik |
 | 12:45–13:30 | [Module 3: Applying Governance with OpenAPI Overlay](http://dret.net/lectures/api-days-india-2026/overlay) | Frank |
