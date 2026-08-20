@@ -1,6 +1,6 @@
 # Module 3: Applying Governance with OpenAPI Overlay
 
-**Duration:** ~20 minutes  
+**Duration:** ~20 minutes (Tasks 1–2) + ~10 minutes optional bonus  
 **Owner:** Frank Kilcommins  
 
 ## Objective
@@ -52,7 +52,7 @@ Once you've seen it working, continue to the tasks below.
 
 ## Exercise Structure
 
-There are three tasks. Tasks 1–2 are required; Task 3 is a bonus.
+There are three tasks. Tasks 1–2 are required and fit the 20-minute slot; Task 3 is an optional bonus if time allows.
 
 Read `governance-policies.md` for the full policy requirements before starting.
 
@@ -95,7 +95,7 @@ The three targets are:
 $.paths['/reading-lists/me/entries']['post']
 ```
 
-### Task 3 (Bonus) — MCP Tool Metadata (~10 min)
+### Task 3 (Optional Bonus) — MCP Tool Metadata (~10 min)
 
 Create `ai-annotations.overlay.yaml` that adds `x-mcp-tool-name` and `x-agent-hint` to the four reading list operations as described in `governance-policies.md`.
 
