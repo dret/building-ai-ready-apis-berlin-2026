@@ -79,7 +79,7 @@ with the ready-made prompt in [`arazzo-gpt-prompt.md`](./arazzo-gpt-prompt.md).
 
 ### Path B — jentic-workflows Claude Code Skill
 
-Use the `jentic-workflows` skill directly in Claude Code.
+Use the [`jentic-workflows` skill](https://github.com/jentic/jentic-skills) directly in Claude Code.
 Follow the instructions in [`jentic-workflows-prompt.md`](./jentic-workflows-prompt.md).
 
 ### Path C — Build It Manually
