@@ -11,14 +11,11 @@
 You've designed a well-structured API. But how does it actually perform when an
 AI agent tries to use it?
 
-This module introduces the **Jentic API AI Readiness Framework** — a
-6-dimension scoring system that measures how well an OpenAPI spec enables autonomous
-agent workflows. You'll score real APIs, discover where the gaps are, and use an
-agent skill to fix them.
+This module introduces the [**Jentic API AI Readiness Framework**](https://github.com/jentic/api-ai-readiness-framework) — a 6-dimension scoring system that measures how well an OpenAPI spec enables autonomous agent workflows. You'll score real APIs, discover where the gaps are, and use an agent skill to fix them.
 
 ---
 
-## The Jentic AIR Framework
+## [The Jentic AIR Framework](https://github.com/jentic/api-ai-readiness-framework)
 
 Six dimensions, each scored 0–100%:
 
