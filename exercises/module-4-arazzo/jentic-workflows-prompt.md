@@ -7,7 +7,7 @@ Use this guide if you prefer to generate the Arazzo workflow using the
 
 ## Prerequisites
 
-The `jentic-workflows` skill must be installed in Claude Code. Verify with:
+The [`jentic-workflows` skill](https://github.com/jentic/jentic-skills) must be installed in Claude Code. Verify with:
 
 ```
 /jentic-workflows help
