@@ -124,6 +124,9 @@ OpenAPI spec, targeting specific Jentic AIR Framework dimensions.
 **Best for:** Hands-on improvement work, seeing the improve skill in action,
 understanding the ROI of targeted changes.
 
+The `jentic-api-improve` applies the following as part of it's execution:
+![jentic-api-improve-process](./jentic-api-improve-process-overview.png)
+
 ---
 
 ## Scoring Detail Levels
