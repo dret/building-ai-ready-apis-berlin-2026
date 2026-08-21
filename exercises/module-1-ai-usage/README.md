@@ -13,7 +13,7 @@ You will examine a real (but deliberately rough) API specification and map out t
 
 ## Setup
 
-Open `book-catalog-raw.openapi.yaml`. This is a first-draft version of the Book Catalog API — the kind of spec that often gets auto-generated or written quickly without governance.
+Open [`book-catalog-raw.openapi.yaml`](./book-catalog-raw.openapi.yaml). This is a first-draft version of the Book Catalog API — the kind of spec that often gets auto-generated or written quickly without governance.
 
 Read through it once before starting the worksheet. Notice:
 - What the API claims to do
@@ -24,7 +24,7 @@ Read through it once before starting the worksheet. Notice:
 
 ## Exercise: "Map the Risk"
 
-Complete the worksheet in `risk-mapping-worksheet.md`.
+Complete the worksheet in [`risk-mapping-worksheet.md`](./risk-mapping-worksheet.md).
 
 The worksheet guides you through four lenses:
 
