@@ -11,7 +11,7 @@ Apply governance policies to the Book Catalog API using **OpenAPI Overlay** — 
 
 ## Background
 
-The version of the Book Catalog API in this module (`book-catalog-with-internal.openapi.yaml`) is the complete source spec — it includes internal admin endpoints that must not be published externally, and it needs standardised contact/license information before it can be published to the developer portal.
+The version of the Book Catalog API in this module ([`book-catalog-with-internal.openapi.yaml`](./book-catalog-with-internal.openapi.yaml)) is the complete source spec — it includes internal admin endpoints that must not be published externally, and it needs standardised contact/license information before it can be published to the developer portal.
 
 Your job is to write Overlay files that transform this spec into a governed, publication-ready version.
 
@@ -19,14 +19,14 @@ Your job is to write Overlay files that transform this spec into a governed, pub
 
 ## Quick Start — See an Overlay in Action First
 
-A working overlay is pre-provided: **`audience-targeting.overlay.yaml`**
+A working overlay is pre-provided: **[`audience-targeting.overlay.yaml`](./audience-targeting.overlay.yaml)**
 
 Apply it now to see the result before writing your own:
 
 **Browser (no install):**
 1. Go to [overlay.speakeasy.com](https://overlay.speakeasy.com)
-2. Paste `book-catalog-with-internal.openapi.yaml` as the source spec
-3. Paste the contents of `audience-targeting.overlay.yaml`
+2. Paste [`book-catalog-with-internal.openapi.yaml`](./book-catalog-with-internal.openapi.yaml) as the source spec
+3. Paste the contents of [`audience-targeting.overlay.yaml`](./audience-targeting.overlay.yaml)
 4. Observe: the `POST /books` and `PUT /books/{bookId}` admin endpoints are removed
 
 **CLI:**
@@ -54,11 +54,11 @@ Once you've seen it working, continue to the tasks below.
 
 There are three tasks. Tasks 1–2 are required and fit the 20-minute slot; Task 3 is an optional bonus if time allows.
 
-Read `governance-policies.md` for the full policy requirements before starting.
+Read [`governance-policies.md`](./governance-policies.md) for the full policy requirements before starting.
 
 ### Task 1 — Standardise Contact and License (~10 min)
 
-Create `contact-license.overlay.yaml` that replaces the `info.contact` object and `info.license` object with the platform-standard values defined in `governance-policies.md`.
+Create `contact-license.overlay.yaml` that replaces the `info.contact` object and `info.license` object with the platform-standard values defined in [`governance-policies.md`](./governance-policies.md).
 
 Use the `update` action with the replacement object as the value:
 
@@ -97,11 +97,11 @@ $.paths['/reading-lists/me/entries']['post']
 
 ### Task 3 (Optional Bonus) — MCP Tool Metadata (~10 min)
 
-Create `ai-annotations.overlay.yaml` that adds `x-mcp-tool-name` and `x-agent-hint` to the four reading list operations as described in `governance-policies.md`.
+Create `ai-annotations.overlay.yaml` that adds `x-mcp-tool-name` and `x-agent-hint` to the four reading list operations as described in [`governance-policies.md`](./governance-policies.md).
 
 `x-mcp-tool-name` gives each operation a stable snake_case tool name for MCP clients. `x-agent-hint` provides a one-line behavioural contract — safe vs. destructive, preconditions, what to call first.
 
-See the example action structure in `governance-policies.md` before starting.
+See the example action structure in [`governance-policies.md`](./governance-policies.md) before starting.
 
 ---
 
@@ -109,7 +109,7 @@ See the example action structure in `governance-policies.md` before starting.
 
 ### Browser (no install) — Speakeasy Overlay Playground
 1. Go to [overlay.speakeasy.com](https://overlay.speakeasy.com)
-2. Paste `book-catalog-with-internal.openapi.yaml` as the source spec
+2. Paste [`book-catalog-with-internal.openapi.yaml`](./book-catalog-with-internal.openapi.yaml) as the source spec
 3. Paste your Overlay YAML
 4. The resulting spec is shown in the right panel
 
@@ -167,11 +167,11 @@ grep -c "operationId: createBook" book-catalog-governed.openapi.yaml   # should 
 
 | File | Purpose |
 |------|---------|
-| `book-catalog-with-internal.openapi.yaml` | **Source spec** — the one you apply overlays to |
-| `audience-targeting.overlay.yaml` | Pre-provided working overlay (Quick Start example) |
-| `governance-policies.md` | Governance policy requirements for Tasks 1–3 |
-| `book-catalog-reference.openapi.yaml` | Reference copy of the Module 2 solution (without internal endpoints) — for comparison only, not used in the exercise |
-| `JUMP-IN.md` | 2-minute context for late arrivals |
+| [`book-catalog-with-internal.openapi.yaml`](./book-catalog-with-internal.openapi.yaml) | **Source spec** — the one you apply overlays to |
+| [`audience-targeting.overlay.yaml`](./audience-targeting.overlay.yaml) | Pre-provided working overlay (Quick Start example) |
+| [`governance-policies.md`](./governance-policies.md) | Governance policy requirements for Tasks 1–3 |
+| [`book-catalog-reference.openapi.yaml`](./book-catalog-reference.openapi.yaml) | Reference copy of the Module 2 solution (without internal endpoints) — for comparison only, not used in the exercise |
+| [`JUMP-IN.md`](./JUMP-IN.md) | 2-minute context for late arrivals |
 
 ---
 

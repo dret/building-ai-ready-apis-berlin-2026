@@ -14,8 +14,8 @@ are weaved together into a workflow.
 In this module you'll author an Arazzo 1.0.1 specification that models a
 five-step book purchase workflow spanning two APIs:
 
-- **Book Catalog API** (`book-catalog-governed.openapi.yaml`) — verify book, find retailers
-- **Book Orders API** (`book-orders.openapi.yaml`) — place order, process payment, confirm
+- **Book Catalog API** ([`book-catalog-governed.openapi.yaml`](./book-catalog-governed.openapi.yaml)) — verify book, find retailers
+- **Book Orders API** ([`book-orders.openapi.yaml`](./book-orders.openapi.yaml)) — place order, process payment, confirm
 
 The full workflow requirements are in [workflow-requirements.md](./workflow-requirements.md).
 
@@ -25,12 +25,12 @@ The full workflow requirements are in [workflow-requirements.md](./workflow-requ
 
 | File | Purpose |
 |------|---------|
-| `book-catalog-governed.openapi.yaml` | Book Catalog API (governed output from Module 3) |
-| `book-orders.openapi.yaml` | Book Orders API |
-| `workflow-requirements.md` | Detailed step-by-step requirements |
-| `.spectral.yaml` | Spectral ruleset for validating Arazzo specs |
-| `arazzo-gpt-prompt.md` | **Path A:** Ready-to-paste prompt for Arazzo GPT |
-| `jentic-workflows-prompt.md` | **Path B:** Instructions for the `jentic-workflows` skill |
+| [`book-catalog-governed.openapi.yaml`](./book-catalog-governed.openapi.yaml) | Book Catalog API (governed output from Module 3) |
+| [`book-orders.openapi.yaml`](./book-orders.openapi.yaml) | Book Orders API |
+| [`workflow-requirements.md`](./workflow-requirements.md) | Detailed step-by-step requirements |
+| [`.spectral.yaml`](./.spectral.yaml) | Spectral ruleset for validating Arazzo specs |
+| [`arazzo-gpt-prompt.md`](./arazzo-gpt-prompt.md) | **Path A:** Ready-to-paste prompt for Arazzo GPT |
+| [`jentic-workflows-prompt.md`](./jentic-workflows-prompt.md) | **Path B:** Instructions for the `jentic-workflows` skill |
 
 ---
 
@@ -67,7 +67,7 @@ Choose **one** of these paths:
 ### Path A — Arazzo Specification GPT
 
 Use the [Arazzo Specification Custom GPT](https://chatgpt.com/g/g-cM6GmgDXr-arazzo-specification)
-with the ready-made prompt in `arazzo-gpt-prompt.md`.
+with the ready-made prompt in [`arazzo-gpt-prompt.md`](./arazzo-gpt-prompt.md).
 
 > **Before the session:** Verify you can access the GPT link above — it requires a ChatGPT
 > account. If the link has moved, search ChatGPT for "Arazzo Specification".
@@ -80,7 +80,7 @@ with the ready-made prompt in `arazzo-gpt-prompt.md`.
 ### Path B — jentic-workflows Claude Code Skill
 
 Use the `jentic-workflows` skill directly in Claude Code.
-Follow the instructions in `jentic-workflows-prompt.md`.
+Follow the instructions in [`jentic-workflows-prompt.md`](./jentic-workflows-prompt.md).
 
 ### Path C — Build It Manually
 
@@ -252,4 +252,4 @@ spectral lint book-purchase.arazzo.yaml --ruleset .spectral.yaml
 diff book-purchase.arazzo.yaml ../../solutions/module-4/book-platform.arazzo.yaml
 ```
 
-The reference solution is at `../../solutions/module-4/book-platform.arazzo.yaml`.
+The reference solution is at [`../../solutions/module-4/book-platform.arazzo.yaml`](../../solutions/module-4/book-platform.arazzo.yaml).

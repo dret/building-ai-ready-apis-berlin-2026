@@ -27,18 +27,18 @@ Full story and domain model: [`user-story.md`](./user-story.md)
 Choose one option:
 
 ### Option 1: LLM-Assisted Generation
-1. Open `system-prompts/openapi-design-assistant.md` — this is your system prompt
+1. Open [`system-prompts/openapi-design-assistant.md`](./system-prompts/openapi-design-assistant.md) — this is your system prompt
 2. Open a new chat with your LLM of choice (ChatGPT, Claude, Gemini, etc.)
 3. Set the system prompt (or paste it at the top of your message)
-4. Send the contents of `user-story.md` as your prompt
+4. Send the contents of [`user-story.md`](./user-story.md) as your prompt
 5. Copy the generated YAML into a file called `book-catalog.openapi.yaml`
 
 > **Tip:** If the output is incomplete, prompt: *"Continue the spec from where you left off, starting with the remaining paths"*
 
 ### Option 2: Complete the Skeleton
-1. Open `book-catalog-skeleton.openapi.yaml`
+1. Open [`book-catalog-skeleton.openapi.yaml`](./book-catalog-skeleton.openapi.yaml)
 2. Replace every `# TODO` marker with proper content
-3. Use `user-story.md` and `system-prompts/openapi-design-assistant.md` for guidance
+3. Use [`user-story.md`](./user-story.md) and [`system-prompts/openapi-design-assistant.md`](./system-prompts/openapi-design-assistant.md) for guidance
 4. Save as `book-catalog.openapi.yaml`
 
 ### Option 3: Claude Code Agent Skill
@@ -88,7 +88,7 @@ npm install -g @stoplight/spectral-cli
 
 ### Run the linter
 
-> Note: if you did part B in Scalar, then you can copy the contents of `.spectral.yaml` into the Diagnostics tab
+> Note: if you did part B in Scalar, then you can copy the contents of [`.spectral.yaml`](./.spectral.yaml) into the Diagnostics tab
 
 ```bash
 spectral lint book-catalog.openapi.yaml --ruleset .spectral.yaml
@@ -96,18 +96,18 @@ spectral lint book-catalog.openapi.yaml --ruleset .spectral.yaml
 
 There are two rulesets in this module:
 
-**`.spectral.yaml`** — minimal ruleset, safe to run on any spec type (OAS, Arazzo, AsyncAPI):
+**[`.spectral.yaml`](./.spectral.yaml)** — minimal ruleset, safe to run on any spec type (OAS, Arazzo, AsyncAPI):
 ```bash
 spectral lint book-catalog.openapi.yaml --ruleset .spectral.yaml
 ```
-> Note: if you did part B in Scalar, then you can copy the contents of `custom-ruleset.spectral.yaml` into the Diagnostics tab
+> Note: if you did part B in Scalar, then you can copy the contents of [`custom-ruleset.spectral.yaml`](./custom-ruleset.spectral.yaml) into the Diagnostics tab
 
-**`custom-ruleset.spectral.yaml`** — extends the minimal ruleset with governance rules:
+**[`custom-ruleset.spectral.yaml`](./custom-ruleset.spectral.yaml)** — extends the minimal ruleset with governance rules:
 ```bash
 spectral lint book-catalog.openapi.yaml --ruleset custom-ruleset.spectral.yaml
 ```
 
-Start with `.spectral.yaml` to catch structural errors first — these are blockers. Once structural errors are clear, run `custom-ruleset.spectral.yaml` for the full governance check.
+Start with [`.spectral.yaml`](./.spectral.yaml) to catch structural errors first — these are blockers. Once structural errors are clear, run [`custom-ruleset.spectral.yaml`](./custom-ruleset.spectral.yaml) for the full governance check.
 
 ### What the custom rules check
 | Rule | Severity | What it enforces |
