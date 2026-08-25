@@ -151,8 +151,8 @@ git --version   # any recent version is fine
 Clone the workshop repository:
 
 ```bash
-git clone https://github.com/dret/building-ai-ready-apis-india-2026.git
-cd building-ai-ready-apis-india-2026
+git clone https://github.com/dret/building-ai-ready-apis-berlin-2026.git
+cd building-ai-ready-apis-berlin-2026
 ```
 
 ---
@@ -203,4 +203,4 @@ claude --version       # installed and authenticated
 ```
 
 If any of these fail, see the troubleshooting notes or open an issue at
-https://github.com/dret/building-ai-ready-apis-india-2026/issues.
+https://github.com/dret/building-ai-ready-apis-berlin-2026/issues.

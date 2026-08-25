@@ -1,5 +1,5 @@
 # Workshop Plan: Building AI-Ready APIs with Agent Skills
-## API Days India, August 21, 2026
+## API Conference Berlin, November 20, 2026
 
 This document is the working plan for designing, building, and sequencing all exercises and supporting materials for the masterclass.
 
@@ -40,7 +40,7 @@ This keeps the domain familiar throughout. Attendees always know what they're wo
 | Paris 2025 Exercise 5 | Module 3 (Overlay — extended with more governance rules) |
 | APIOps-AI-Ready-APIs | Module 5 (scoring + improvement with agent skills) |
 | describing-api-workflows-with-arazzo | Module 4 structure (BNPL → Book Platform scenario; Arazzo GPT stays; Itarazzo replaced by Jentic tooling) |
-| india.xml presentation slides | Content alignment for all modules |
+| berlin.xml presentation slides | Content alignment for all modules |
 
 ---
 
